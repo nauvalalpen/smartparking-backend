@@ -18,6 +18,12 @@
                     <x-nav-link :href="route('kamera.index')" :active="request()->routeIs('kamera.*')">
                         {{ __('Kamera CCTV') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('pengguna.index')" :active="request()->routeIs('pengguna.*')">
+                        {{ __('Manajemen Petugas') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('laporan.index')" :active="request()->routeIs('laporan.*')">
+                        {{ __('Laporan Data') }}
+                    </x-nav-link>
                 </div>
             </div>
 

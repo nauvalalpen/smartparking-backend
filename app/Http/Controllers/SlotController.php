@@ -63,32 +63,31 @@ class SlotController extends Controller
         return response()->json(['message' => 'Status tidak berubah, diabaikan.'], 200);
     }
    
-    public function createRoi($kamera_id)
+    // Menampilkan halaman Canvas untuk menggambar RoI
+    public function createRoi($id_kamera)
     {
-        $kamera = \App\Models\KameraCctv::findOrFail($kamera_id);
-        
-        // Ambil daftar slot yang sudah pernah digambar di kamera ini
-        $slots = \App\Models\Slot::where('id_kamera', $kamera_id)->get();
-        
-        return view('roi.create', compact('kamera', 'slots'));
+        $kamera = \App\Models\KameraCctv::findOrFail($id_kamera);
+        // Mengambil slot yang sudah ada di kamera ini
+        $slots = \App\Models\Slot::where('id_kamera', $id_kamera)->get(); 
+
+        return view('kamera.roi', compact('kamera', 'slots'));
     }
 
-    // WEB: Menyimpan data Poligon ke Database
-    public function storeRoi(Request $request)
+    // Menyimpan koordinat JSON ke database
+    public function storeRoi(Request $request, $id_kamera)
     {
         $request->validate([
-            'id_kamera' => 'required|integer',
             'nama_slot' => 'required|string|max:50',
-            'koordinat_roi' => 'required|string' // Format JSON
+            'koordinat_roi' => 'required|json' // Validasi harus berformat JSON
         ]);
 
         \App\Models\Slot::create([
-            'id_kamera' => $request->id_kamera,
+            'id_kamera' => $id_kamera,
             'nama_slot' => $request->nama_slot,
             'koordinat_roi' => $request->koordinat_roi,
             'status' => 'kosong'
         ]);
 
-        return back()->with('success', 'Slot Parkir (RoI) berhasil digambar dan disimpan!');
+        return redirect()->route('kamera.roi', $id_kamera)->with('success', 'Slot Parkir (RoI) berhasil disimpan!');
     }
 }

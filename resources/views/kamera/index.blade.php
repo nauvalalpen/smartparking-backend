@@ -56,9 +56,9 @@
                                         @endif
                                     </td>
                                     <td class="px-4 py-2 border border-gray-200 text-center">
-                                        <a href="{{ route('roi.config', $kamera->id_kamera) }}"
-                                            class="bg-indigo-600 hover:bg-indigo-800 text-white text-xs font-bold py-1 px-3 rounded">
-                                            Seting RoI
+                                        <a href="{{ route('kamera.roi', $kamera->id_kamera) }}"
+                                            class="bg-indigo-500 hover:bg-indigo-700 text-white text-xs font-bold py-1 px-3 rounded mr-2">
+                                            Set RoI
                                         </a>
                                         <form action="{{ route('kamera.destroy', $kamera->id_kamera) }}" method="POST"
                                             onsubmit="return confirm('Apakah Anda yakin ingin menghapus kamera ini?');">

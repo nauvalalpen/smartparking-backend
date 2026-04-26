@@ -8,4 +8,8 @@ class TrafficFlow extends Model
     protected $table = 'trafficflows';
     protected $primaryKey = 'id_traffic';
     protected $fillable =['id_kamera', 'tanggal', 'kendaraan_masuk', 'kendaraan_keluar'];
+
+    public function kamera() {
+        return $this->belongsTo(KameraCctv::class, 'id_kamera', 'id_kamera');
+    }
 }

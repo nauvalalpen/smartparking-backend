@@ -4,6 +4,9 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KameraController;
+use App\Http\Controllers\SlotController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\LaporanController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,8 +26,16 @@ Route::middleware('auth')->group(function () {
 // Route untuk CRUD Kamera CCTV
 Route::resource('kamera', KameraController::class)->middleware(['auth', 'verified']);
 
-// Route untuk Fitur Gambar RoI
-Route::get('/roi/config/{kamera_id}', [\App\Http\Controllers\SlotController::class, 'createRoi'])->name('roi.config');
-Route::post('/roi/store',[\App\Http\Controllers\SlotController::class, 'storeRoi'])->name('roi.store');
+// Route untuk Halaman Konfigurasi RoI
+Route::get('/kamera/{id_kamera}/roi', [SlotController::class, 'createRoi'])->name('kamera.roi');
+Route::post('/kamera/{id_kamera}/roi',[SlotController::class, 'storeRoi'])->name('kamera.roi.store');
+
+// Route untuk Kelola Data Pengguna (Petugas)
+Route::resource('pengguna', UserController::class)->middleware(['auth', 'verified']);
+
+// Route Laporan dan Export
+Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+Route::get('/laporan/pdf', [LaporanController::class, 'exportPdf'])->name('laporan.pdf');
+Route::get('/laporan/excel', [LaporanController::class, 'exportExcel'])->name('laporan.excel');
 
 require __DIR__.'/auth.php';
