@@ -30,4 +30,16 @@ class TrafficFlowController extends Controller
 
         return response()->json(['message' => 'Traffic Flow Counter +1 Success!'], 200);
     }
+
+    public function getStats()
+    {
+        $data = \App\Models\TrafficFlow::where('tanggal', '>=', now()->subDays(6))
+            ->orderBy('tanggal', 'asc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
 }

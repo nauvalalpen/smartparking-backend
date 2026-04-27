@@ -17,3 +17,6 @@ Route::get('/public/slots', [SlotController::class, 'getPublicSlots']);
 // Route untuk Sistem AI Python (Update Data)
 Route::put('/ai/slot-update', [SlotController::class, 'updateStatusAI']);
 Route::post('/ai/traffic-count', [TrafficFlowController::class, 'incrementTraffic']);
+
+// Route untuk Dashboard Admin (Read Data)
+Route::get('/traffic/stats', [TrafficFlowController::class, 'getStats']);
