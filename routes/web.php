@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AreaController;
 use App\Http\Controllers\KameraController;
 use App\Http\Controllers\SlotController;
 use App\Http\Controllers\UserController;
@@ -23,7 +24,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// --- ROUTE KAMERA CCTV & PENGGUNA (Otomatis mencakup edit & hapus) ---
+// --- ROUTE AREA, KAMERA CCTV & PENGGUNA ---
+Route::resource('area', AreaController::class)->middleware(['auth', 'verified']);
 Route::resource('kamera', KameraController::class)->middleware(['auth', 'verified']);
 Route::resource('pengguna', UserController::class)->middleware(['auth', 'verified']);
 

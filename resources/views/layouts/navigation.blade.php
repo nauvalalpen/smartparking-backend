@@ -15,8 +15,14 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('area.index')" :active="request()->routeIs('area.*')">
+                        {{ __('Area Parkiran') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('kamera.index')" :active="request()->routeIs('kamera.*')">
                         {{ __('Kamera CCTV') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('roi.index')" :active="request()->routeIs('roi.*')">
+                        {{ __('Konfigurasi RoI') }}
                     </x-nav-link>
                     <x-nav-link :href="route('pengguna.index')" :active="request()->routeIs('pengguna.*')">
                         {{ __('Manajemen Petugas') }}
