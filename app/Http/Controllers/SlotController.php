@@ -110,21 +110,4 @@ class SlotController extends Controller
         return view('kamera.roi', compact('kamera', 'slots'));
     }
 
-    // Menyimpan koordinat JSON ke database
-    public function storeRoi(Request $request, $id_kamera)
-    {
-        $request->validate([
-            'nama_slot' => 'required|string|max:50',
-            'koordinat_roi' => 'required|json' // Validasi harus berformat JSON
-        ]);
-
-        \App\Models\Slot::create([
-            'id_kamera' => $id_kamera,
-            'nama_slot' => $request->nama_slot,
-            'koordinat_roi' => $request->koordinat_roi,
-            'status' => 'kosong'
-        ]);
-
-        return redirect()->route('kamera.roi', $id_kamera)->with('success', 'Slot Parkir (RoI) berhasil disimpan!');
-    }
 }
