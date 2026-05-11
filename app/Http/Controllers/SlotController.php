@@ -110,4 +110,43 @@ class SlotController extends Controller
         return view('kamera.roi', compact('kamera', 'slots'));
     }
 
+    // Menampilkan form edit slot RoI
+    public function editRoi($id)
+    {
+        $slot = \App\Models\Slot::findOrFail($id);
+        $kameras = \App\Models\KameraCctv::where('status', 'aktif')->get();
+
+        return view('roi.edit', compact('slot', 'kameras'));
+    }
+
+    // Menyimpan perubahan slot RoI
+    public function updateRoi(Request $request, $id)
+    {
+        $request->validate([
+            'nama_slot' => 'required|string|max:50',
+            'koordinat_roi' => 'required|json'
+        ]);
+
+        $slot = \App\Models\Slot::findOrFail($id);
+        $slot->update([
+            'nama_slot' => $request->nama_slot,
+            'koordinat_roi' => $request->koordinat_roi
+        ]);
+
+        return redirect()->route('roi.index', ['kamera_id' => $slot->id_kamera])
+                         ->with('success', 'Slot Parkir berhasil diperbarui!');
+    }
+
+    // Menghapus slot RoI
+    public function destroyRoi($id)
+    {
+        $slot = \App\Models\Slot::findOrFail($id);
+        $id_kamera = $slot->id_kamera;
+        $slot->delete();
+
+        return redirect()->route('roi.index', ['kamera_id' => $id_kamera])
+                         ->with('success', 'Slot Parkir berhasil dihapus!');
+    }
 }
+
+

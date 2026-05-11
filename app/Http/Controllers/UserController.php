@@ -41,6 +41,39 @@ class UserController extends Controller
         return redirect()->route('pengguna.index')->with('success', 'Akun Petugas berhasil didaftarkan!');
     }
 
+    // Menampilkan form edit petugas
+    public function edit($id)
+    {
+        $pengguna = User::findOrFail($id);
+        return view('pengguna.edit', compact('pengguna'));
+    }
+
+    // Menyimpan perubahan data petugas
+    public function update(Request $request, $id)
+    {
+        $pengguna = User::findOrFail($id);
+        
+        $request->validate([
+            'nama_lengkap' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id . ',id_pengguna',
+            'password' => 'nullable|string|min:6'
+        ]);
+
+        $data = [
+            'nama_lengkap' => $request->nama_lengkap,
+            'email' => $request->email,
+        ];
+
+        // Update password hanya jika diisi
+        if ($request->password) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $pengguna->update($data);
+
+        return redirect()->route('pengguna.index')->with('success', 'Data Petugas berhasil diperbarui!');
+    }
+
     // Menghapus akun petugas
     public function destroy($id)
     {

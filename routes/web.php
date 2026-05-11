@@ -30,6 +30,9 @@ Route::resource('pengguna', UserController::class)->middleware(['auth', 'verifie
 // --- ROUTE KONFIGURASI ROI (TERPISAH) ---
 Route::get('/konfigurasi-roi', [SlotController::class, 'indexRoi'])->name('roi.index');
 Route::post('/konfigurasi-roi/store', [SlotController::class, 'storeRoi'])->name('roi.store');
+Route::get('/konfigurasi-roi/{id}/edit', [SlotController::class, 'editRoi'])->name('roi.edit');
+Route::put('/konfigurasi-roi/{id}', [SlotController::class, 'updateRoi'])->name('roi.update');
+Route::delete('/konfigurasi-roi/{id}', [SlotController::class, 'destroyRoi'])->name('roi.destroy');
 
 // Route untuk Halaman Konfigurasi RoI
 Route::get('/kamera/{id_kamera}/roi', [SlotController::class, 'createRoi'])->name('kamera.roi');

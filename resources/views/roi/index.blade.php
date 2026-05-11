@@ -91,10 +91,26 @@
                         <h3 class="text-sm font-bold text-gray-800 mb-4">Slot Parkir Tersimpan</h3>
                         <ul class="divide-y divide-gray-100">
                             @forelse($slots as $slot)
-                                <li class="py-3 flex justify-between items-center">
-                                    <span class="text-gray-700 font-medium">{{ $slot->nama_slot }}</span>
-                                    <span class="text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-1 rounded">RoI
-                                        disimpan</span>
+                                <li class="py-3 flex justify-between items-center gap-2">
+                                    <div class="flex-1">
+                                        <span class="text-gray-700 font-medium block">{{ $slot->nama_slot }}</span>
+                                        <span class="text-xs text-gray-500">{{ $slot->koordinat_roi }}</span>
+                                    </div>
+                                    <div class="flex gap-1">
+                                        <a href="{{ route('roi.edit', $slot->id_slot) }}"
+                                            class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-1 px-2 rounded">
+                                            Edit
+                                        </a>
+                                        <form action="{{ route('roi.destroy', $slot->id_slot) }}" method="POST"
+                                            onsubmit="return confirm('Hapus slot parkir ini?');" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1 px-2 rounded">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    </div>
                                 </li>
                             @empty
                                 <p class="text-xs text-gray-400">Belum ada slot tersimpan untuk kamera ini.</p>
@@ -165,4 +181,10 @@
             }
 
             function clearCanvas() {
-                points =
+                points = [];
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                inputKoordinat.value = '';
+            }
+        }
+    </script>
+</x-app-layout>

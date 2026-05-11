@@ -56,12 +56,17 @@
                                         @endif
                                     </td>
                                     <td class="px-4 py-2 border border-gray-200 text-center">
+                                        <a href="{{ route('kamera.edit', $kamera->id_kamera) }}"
+                                            class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-1 px-3 rounded mr-2">
+                                            Edit
+                                        </a>
                                         <a href="{{ route('kamera.roi', $kamera->id_kamera) }}"
                                             class="bg-indigo-500 hover:bg-indigo-700 text-white text-xs font-bold py-1 px-3 rounded mr-2">
                                             Set RoI
                                         </a>
                                         <form action="{{ route('kamera.destroy', $kamera->id_kamera) }}" method="POST"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus kamera ini?');">
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus kamera ini?');"
+                                            class="inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"

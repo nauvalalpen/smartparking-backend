@@ -43,12 +43,19 @@
                                             class="bg-indigo-200 text-indigo-800 text-xs px-2 py-1 rounded-full uppercase font-bold">{{ $user->role }}</span>
                                     </td>
                                     <td class="px-4 py-2 border border-gray-200 text-center">
+                                        <a href="{{ route('pengguna.edit', $user->id_pengguna) }}"
+                                            class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-1 px-3 rounded mr-2">
+                                            Edit
+                                        </a>
                                         <form action="{{ route('pengguna.destroy', $user->id_pengguna) }}"
-                                            method="POST" onsubmit="return confirm('Hapus akun petugas ini?');">
+                                            method="POST" onsubmit="return confirm('Hapus akun petugas ini?');"
+                                            class="inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
-                                                class="bg-red-500 hover:bg-red-700 text-white text-xs font-bold py-1 px-3 rounded">Hapus</button>
+                                                class="bg-red-500 hover:bg-red-700 text-white text-xs font-bold py-1 px-3 rounded">
+                                                Hapus
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>
