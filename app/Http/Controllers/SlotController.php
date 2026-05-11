@@ -63,6 +63,43 @@ class SlotController extends Controller
         return response()->json(['message' => 'Status tidak berubah, diabaikan.'], 200);
     }
    
+// Menampilkan Halaman Konfigurasi RoI dengan Dropdown
+    public function indexRoi(Request $request)
+    {
+        // Ambil semua kamera yang aktif untuk dropdown
+        $kameras = \App\Models\KameraCctv::where('status', 'aktif')->get();
+        
+        // Tentukan kamera mana yang sedang dipilih (Default: kamera pertama)
+        $selectedKameraId = $request->kamera_id ?? ($kameras->first()->id_kamera ?? null);
+        $selectedKamera = \App\Models\KameraCctv::find($selectedKameraId);
+        
+        // Ambil slot hanya untuk kamera yang dipilih
+        $slots = $selectedKameraId ? \App\Models\Slot::where('id_kamera', $selectedKameraId)->get() : collect();
+
+        return view('roi.index', compact('kameras', 'selectedKamera', 'slots'));
+    }
+
+    // Menyimpan koordinat JSON
+    public function storeRoi(Request $request)
+    {
+        $request->validate([
+            'id_kamera' => 'required|integer',
+            'nama_slot' => 'required|string|max:50',
+            'koordinat_roi' => 'required|json'
+        ]);
+
+        \App\Models\Slot::create([
+            'id_kamera' => $request->id_kamera,
+            'nama_slot' => $request->nama_slot,
+            'koordinat_roi' => $request->koordinat_roi,
+            'status' => 'kosong'
+        ]);
+
+        // Redirect kembali ke halaman RoI dengan kamera yang sama
+        return redirect()->route('roi.index', ['kamera_id' => $request->id_kamera])
+                         ->with('success', 'Slot Parkir berhasil disimpan!');
+    }
+
     // Menampilkan halaman Canvas untuk menggambar RoI
     public function createRoi($id_kamera)
     {

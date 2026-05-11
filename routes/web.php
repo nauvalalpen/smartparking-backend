@@ -23,15 +23,18 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Route untuk CRUD Kamera CCTV
+// --- ROUTE KAMERA CCTV & PENGGUNA (Otomatis mencakup edit & hapus) ---
 Route::resource('kamera', KameraController::class)->middleware(['auth', 'verified']);
+Route::resource('pengguna', UserController::class)->middleware(['auth', 'verified']);
+
+// --- ROUTE KONFIGURASI ROI (TERPISAH) ---
+Route::get('/konfigurasi-roi', [SlotController::class, 'indexRoi'])->name('roi.index');
+Route::post('/konfigurasi-roi/store', [SlotController::class, 'storeRoi'])->name('roi.store');
 
 // Route untuk Halaman Konfigurasi RoI
 Route::get('/kamera/{id_kamera}/roi', [SlotController::class, 'createRoi'])->name('kamera.roi');
 Route::post('/kamera/{id_kamera}/roi',[SlotController::class, 'storeRoi'])->name('kamera.roi.store');
 
-// Route untuk Kelola Data Pengguna (Petugas)
-Route::resource('pengguna', UserController::class)->middleware(['auth', 'verified']);
 
 // Route Laporan dan Export
 Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
