@@ -24,6 +24,18 @@
             <span class="font-medium">Dashboard</span>
         </a>
 
+        <!-- Area Parkiran -->
+        <a href="{{ route('area.index') }}"
+            class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('area.*') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="font-medium">Area Parkiran</span>
+        </a>
+
         <!-- Kamera CCTV -->
         <a href="{{ route('kamera.index') }}"
             class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('kamera.*') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
@@ -32,6 +44,16 @@
                     d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
             <span class="font-medium">Kamera CCTV</span>
+        </a>
+
+        <!-- Konfigurasi RoI -->
+        <a href="{{ route('roi.index') }}"
+            class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('roi.*') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 8V4m0 0h4m-4 0l5 5m11-1V4m0 0h-4m4 0l-5 5M4 20v-4m0 4h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+            </svg>
+            <span class="font-medium">Konfigurasi RoI</span>
         </a>
 
         <!-- Manajemen Petugas -->
