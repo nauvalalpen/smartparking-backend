@@ -30,80 +30,83 @@
                     </div>
                 </div>
 
-                {{-- Validation errors --}}
-                @if ($errors->any())
-                    <div class="error-box">
-                        <div class="error-box-icon">
-                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="error-box-title">Mohon perbaiki kesalahan berikut:</p>
-                            @foreach ($errors->all() as $error)
-                                <p class="error-box-item">• {{ $error }}</p>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                <form action="{{ route('kamera.store') }}" method="POST" class="sp-form">
-                    @csrf
-
-                    <div class="form-row-2">
-                        <div class="field-group">
-                            <label class="field-label">Area Parkir <span class="field-required">*</span></label>
-                            <select name="id_area" class="field-select" required>
-                                <option value="">— Pilih area —</option>
-                                @foreach ($areas as $area)
-                                    <option value="{{ $area->id_area }}"
-                                        {{ old('id_area') == $area->id_area ? 'selected' : '' }}>
-                                        {{ $area->nama_area }}
-                                    </option>
+                {{-- Form content wrapper with scroll --}}
+                <div class="form-content-wrapper">
+                    {{-- Validation errors --}}
+                    @if ($errors->any())
+                        <div class="error-box">
+                            <div class="error-box-icon">
+                                <svg width="14" height="14" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="error-box-title">Mohon perbaiki kesalahan berikut:</p>
+                                @foreach ($errors->all() as $error)
+                                    <p class="error-box-item">• {{ $error }}</p>
                                 @endforeach
-                            </select>
+                            </div>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('kamera.store') }}" method="POST" class="sp-form">
+                        @csrf
+
+                        <div class="form-row-2">
+                            <div class="field-group">
+                                <label class="field-label">Area Parkir <span class="field-required">*</span></label>
+                                <select name="id_area" class="field-select" required>
+                                    <option value="">— Pilih area —</option>
+                                    @foreach ($areas as $area)
+                                        <option value="{{ $area->id_area }}"
+                                            {{ old('id_area') == $area->id_area ? 'selected' : '' }}>
+                                            {{ $area->nama_area }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Status <span class="field-required">*</span></label>
+                                <select name="status" class="field-select" required>
+                                    <option value="aktif" {{ old('status', 'aktif') == 'aktif' ? 'selected' : '' }}>
+                                        Aktif</option>
+                                    <option value="tidak_aktif"{{ old('status') == 'tidak_aktif' ? 'selected' : '' }}>
+                                        Tidak Aktif</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="field-group">
-                            <label class="field-label">Status <span class="field-required">*</span></label>
-                            <select name="status" class="field-select" required>
-                                <option value="aktif" {{ old('status', 'aktif') == 'aktif' ? 'selected' : '' }}>
-                                    Aktif</option>
-                                <option
-                                    value="tidak_aktif"{{ old('status') == 'tidak_aktif' ? 'selected' : '' }}>
-                                    Tidak Aktif</option>
-                            </select>
+                            <label class="field-label">Nama Kamera <span class="field-required">*</span></label>
+                            <input type="text" name="nama_kamera" class="field-input"
+                                value="{{ old('nama_kamera') }}" placeholder="Contoh: CCTV Pintu Utama A" required>
+                            <p class="field-hint">Gunakan nama yang mudah dikenali, seperti nama lokasi atau nomor urut.
+                            </p>
                         </div>
-                    </div>
 
-                    <div class="field-group">
-                        <label class="field-label">Nama Kamera <span class="field-required">*</span></label>
-                        <input type="text" name="nama_kamera" class="field-input" value="{{ old('nama_kamera') }}"
-                            placeholder="Contoh: CCTV Pintu Utama A" required>
-                        <p class="field-hint">Gunakan nama yang mudah dikenali, seperti nama lokasi atau nomor urut.</p>
-                    </div>
+                        <div class="field-group">
+                            <label class="field-label">URL RTSP <span class="field-required">*</span></label>
+                            <input type="url" name="rtsp_url" class="field-input field-mono"
+                                value="{{ old('rtsp_url') }}" placeholder="rtsp://user:password@192.168.1.100/stream"
+                                required>
+                            <p class="field-hint">Format: <code>rtsp://username:password@ip-address/path</code></p>
+                        </div>
 
-                    <div class="field-group">
-                        <label class="field-label">URL RTSP <span class="field-required">*</span></label>
-                        <input type="url" name="rtsp_url" class="field-input field-mono"
-                            value="{{ old('rtsp_url') }}" placeholder="rtsp://user:password@192.168.1.100/stream"
-                            required>
-                        <p class="field-hint">Format: <code>rtsp://username:password@ip-address/path</code></p>
-                    </div>
-
-                    <div class="form-actions">
-                        <a href="{{ route('kamera.index') }}" class="btn-ghost-sm">Batal</a>
-                        <button type="submit" class="btn-primary">
-                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                            </svg>
-                            Simpan Kamera
-                        </button>
-                    </div>
-                </form>
+                        <div class="form-actions">
+                            <a href="{{ route('kamera.index') }}" class="btn-ghost-sm">Batal</a>
+                            <button type="submit" class="btn-primary">
+                                <svg width="14" height="14" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Simpan Kamera
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             {{-- Info sidebar --}}
@@ -126,4 +129,36 @@
     </div>
 
     @include('layouts.form-styles')
+
+    <style>
+        .form-content-wrapper {
+            max-height: calc(100vh - 320px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 4px;
+        }
+
+        .form-content-wrapper::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .form-content-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .form-content-wrapper::-webkit-scrollbar-thumb {
+            background: #D9D6D0;
+            border-radius: 3px;
+        }
+
+        .form-content-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #C9C6C0;
+        }
+
+        @media (max-width: 720px) {
+            .form-content-wrapper {
+                max-height: calc(100vh - 280px);
+            }
+        }
+    </style>
 </x-app-layout>
