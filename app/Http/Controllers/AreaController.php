@@ -55,7 +55,7 @@ class AreaController extends Controller
         ]);
 
         Area::create([
-            'id_pengguna' => $request->user()->id,
+            'id_pengguna' => \Illuminate\Support\Facades\Auth::id(),
             'nama_area' => $request->nama_area,
             'deskripsi' => $request->deskripsi,
             'kapasitas_total' => $request->kapasitas_total

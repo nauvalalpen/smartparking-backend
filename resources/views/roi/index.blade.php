@@ -511,27 +511,63 @@
         if (canvas) {
             const ctx = canvas.getContext('2d');
             const inputKoordinat = document.getElementById('koordinat_input');
+            const canvasImg = document.getElementById('camera-frame');
             let points = [];
 
-            // Sesuaikan ukuran resolusi internal canvas dengan ukuran tampilannya
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
+            // Get the image and set canvas dimensions based on image
+            if (canvasImg.complete) {
+                initCanvas();
+            } else {
+                canvasImg.onload = initCanvas;
+            }
+
+            function initCanvas() {
+                // Set canvas size based on container and image
+                const container = canvas.parentElement;
+                const containerRect = container.getBoundingClientRect();
+                const imgRect = canvasImg.getBoundingClientRect();
+
+                // Use image dimensions for canvas resolution
+                canvas.width = canvasImg.naturalWidth || 640;
+                canvas.height = canvasImg.naturalHeight || 480;
+
+                // Set display size
+                canvas.style.width = imgRect.width + 'px';
+                canvas.style.height = imgRect.height + 'px';
+
+                redraw();
+            }
 
             canvas.addEventListener('click', function(event) {
                 const rect = canvas.getBoundingClientRect();
-                const x = Math.round(event.clientX - rect.left);
-                const y = Math.round(event.clientY - rect.top);
-                points.push({
-                    x: x,
-                    y: y
-                });
-                drawPolygon();
+                const imgRect = document.getElementById('camera-frame').getBoundingClientRect();
+
+                // Calculate position relative to canvas internal resolution
+                const x = Math.round((event.clientX - imgRect.left) * (canvas.width / imgRect.width));
+                const y = Math.round((event.clientY - imgRect.top) * (canvas.height / imgRect.height));
+
+                // Only add point if within canvas bounds
+                if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) {
+                    points.push({
+                        x: x,
+                        y: y
+                    });
+                    redraw();
+                }
             });
 
-            function drawPolygon() {
+            // Add double-click to close polygon
+            canvas.addEventListener('dblclick', function() {
+                if (points.length > 2) {
+                    updateInputValue();
+                }
+            });
+
+            function redraw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+
                 if (points.length > 0) {
+                    // Draw polygon
                     ctx.beginPath();
                     ctx.moveTo(points[0].x, points[0].y);
                     for (let i = 1; i < points.length; i++) {
@@ -544,14 +580,25 @@
                     ctx.strokeStyle = "#2563EB";
                     ctx.stroke();
 
+                    // Draw points
                     points.forEach(point => {
                         ctx.beginPath();
                         ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
-                        ctx.fillStyle = "red";
+                        ctx.fillStyle = "#DC2626";
                         ctx.fill();
+                        ctx.strokeStyle = "#fff";
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
                     });
                 }
-                inputKoordinat.value = JSON.stringify(points);
+            }
+
+            function updateInputValue() {
+                if (points.length >= 3) {
+                    inputKoordinat.value = JSON.stringify(points);
+                } else {
+                    inputKoordinat.value = JSON.stringify(points);
+                }
             }
 
             function clearCanvas() {
@@ -559,6 +606,9 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 inputKoordinat.value = '';
             }
+
+            // Expose functions to global scope
+            window.clearCanvas = clearCanvas;
         }
     </script>
 </x-app-layout>

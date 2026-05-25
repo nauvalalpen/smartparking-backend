@@ -43,7 +43,8 @@ class KameraController extends Controller
     {
         $kamera = KameraCctv::findOrFail($id);
         $areas = Area::all();
-        return view('kamera.edit', compact('kamera', 'areas'));
+        $slots = \App\Models\Slot::where('id_kamera', $id)->get();
+        return view('kamera.edit', compact('kamera', 'areas', 'slots'));
     }
 
     // 3.75 Menyimpan Perubahan Data (Proses Update)
