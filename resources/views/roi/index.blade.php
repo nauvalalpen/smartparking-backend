@@ -108,8 +108,8 @@
 
                         <div class="field-group">
                             <label class="field-label">Koordinat (JSON) <span class="field-required">*</span></label>
-                            <textarea id="koordinat_input" name="koordinat_roi" rows="3" class="field-input field-textarea" readonly required
-                                placeholder="Gambar di canvas untuk mengisi ini..."></textarea>
+                            <textarea id="koordinat_input" name="koordinat_roi" rows="6" class="field-input field-textarea json-editor"
+                                readonly required placeholder="Gambar di canvas untuk mengisi ini..."></textarea>
                             <p class="field-hint">Koordinat otomatis terisi saat menggambar pada canvas.</p>
                         </div>
 

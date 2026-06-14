@@ -19,7 +19,7 @@
 
     /* --- Page shell --- */
     .form-page {
-        max-width: 900px;
+        max-width: 1280px;
     }
 
     /* --- Breadcrumb --- */
@@ -72,8 +72,8 @@
     /* --- Layout --- */
     .form-layout {
         display: grid;
-        grid-template-columns: 1fr 260px;
-        gap: 20px;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
         align-items: start;
     }
 
