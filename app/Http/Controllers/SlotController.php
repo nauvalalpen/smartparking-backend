@@ -12,7 +12,7 @@ class SlotController extends Controller
     // API GET: Untuk Aplikasi Mobile (Melihat Sisa Parkir)
     public function getPublicSlots()
     {
-        $slots = Slot::all();
+        $slots = Slot::with('camera')->get();
         $total = $slots->count();
         $terisi = $slots->where('status', 'terisi')->count();
         

@@ -12,4 +12,8 @@ class Slot extends Model
     public function histories() {
         return $this->hasMany(SlotHistory::class, 'id_slot', 'id_slot');
     }
+
+    public function camera() {
+        return $this->belongsTo(KameraCctv::class, 'id_kamera', 'id_kamera');
+    }
 }
