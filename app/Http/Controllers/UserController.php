@@ -11,12 +11,12 @@ class UserController extends Controller
     // Menampilkan daftar Petugas/Satpam
     public function index()
     {
-        // Hanya menampilkan user dengan role 'petugas'
-        $penggunas = User::where('role', 'petugas')->get();
+        // Menampilkan user dengan role 'admin' atau 'operator'
+        $penggunas = User::whereIn('role', ['admin', 'operator'])->get();
         return view('pengguna.index', compact('penggunas'));
     }
 
-    // Menampilkan form tambah petugas
+    // Menampilkan form tambah petugas (tidak digunakan jika menggunakan modal)
     public function create()
     {
         return view('pengguna.create');
@@ -28,20 +28,21 @@ class UserController extends Controller
         $request->validate([
             'nama_lengkap' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6'
+            'password' => 'required|string|min:8',
+            'role' => 'required|in:admin,operator'
         ]);
 
         User::create([
             'nama_lengkap' => $request->nama_lengkap,
             'email' => $request->email,
-            'password' => Hash::make($request->password), // Password langsung dienkripsi (Hash)
-            'role' => 'petugas' // Langsung dikunci sebagai petugas
+            'password' => Hash::make($request->password),
+            'role' => $request->role
         ]);
 
         return redirect()->route('pengguna.index')->with('success', 'Akun Petugas berhasil didaftarkan!');
     }
 
-    // Menampilkan form edit petugas
+    // Menampilkan form edit petugas (tidak digunakan jika menggunakan modal)
     public function edit($id)
     {
         $pengguna = User::findOrFail($id);
@@ -56,12 +57,14 @@ class UserController extends Controller
         $request->validate([
             'nama_lengkap' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id . ',id_pengguna',
-            'password' => 'nullable|string|min:6'
+            'password' => 'nullable|string|min:8',
+            'role' => 'required|in:admin,operator'
         ]);
 
         $data = [
             'nama_lengkap' => $request->nama_lengkap,
             'email' => $request->email,
+            'role' => $request->role
         ];
 
         // Update password hanya jika diisi

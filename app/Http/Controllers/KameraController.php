@@ -13,7 +13,8 @@ class KameraController extends Controller
     {
         // Mengambil semua data kamera beserta nama areanya
         $kameras = KameraCctv::with('area')->get();
-        return view('kamera.index', compact('kameras'));
+        $areas = Area::all(); // Mengambil data area untuk dropdown modal
+        return view('kamera.index', compact('kameras', 'areas'));
     }
 
     // 2. Menampilkan Form Tambah Kamera
