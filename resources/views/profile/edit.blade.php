@@ -4,7 +4,6 @@
     <div x-data="{
         activeTab: 'profile',
         showDelete: false,
-    
         setTab(tab) {
             this.activeTab = tab;
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -13,7 +12,7 @@
 
         {{-- ══════════════════════════════════════════
          PAGE HEADER
-    ══════════════════════════════════════════ --}}
+        ══════════════════════════════════════════ --}}
         <div class="page-header">
             <div>
                 <h1 class="page-title">Pengaturan Akun</h1>
@@ -23,7 +22,7 @@
 
         {{-- ══════════════════════════════════════════
          FLASH TOASTS
-    ══════════════════════════════════════════ --}}
+        ══════════════════════════════════════════ --}}
         @if (session('status') === 'profile-updated')
             <div class="toast toast-success" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
                 x-transition:enter="toast-enter" x-transition:leave="toast-leave">
@@ -62,14 +61,14 @@
 
         {{-- ══════════════════════════════════════════
          SETTINGS LAYOUT — SIDEBAR + CONTENT
-    ══════════════════════════════════════════ --}}
+        ══════════════════════════════════════════ --}}
         <div class="settings-layout">
+
             {{-- SIDEBAR NAVIGATION --}}
             <aside class="settings-sidebar">
                 <nav class="settings-nav">
-                    {{-- Profile Section --}}
                     <button @click="setTab('profile')"
-                        :class="{ 'nav-item active': activeTab === 'profile', 'nav-item': activeTab !== 'profile' }">
+                        :class="activeTab === 'profile' ? 'nav-item active' : 'nav-item'">
                         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                             stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -78,9 +77,8 @@
                         <span>Informasi Profil</span>
                     </button>
 
-                    {{-- Security Section --}}
                     <button @click="setTab('security')"
-                        :class="{ 'nav-item active': activeTab === 'security', 'nav-item': activeTab !== 'security' }">
+                        :class="activeTab === 'security' ? 'nav-item active' : 'nav-item'">
                         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                             stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -89,10 +87,10 @@
                         <span>Keamanan</span>
                     </button>
 
-                    {{-- Danger Zone --}}
                     <div class="nav-divider"></div>
+
                     <button @click="setTab('danger')"
-                        :class="{ 'nav-item active danger': activeTab === 'danger', 'nav-item danger': activeTab !== 'danger' }">
+                        :class="activeTab === 'danger' ? 'nav-item danger active' : 'nav-item danger'">
                         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                             stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -108,16 +106,13 @@
 
                 {{-- ════════════════════════════════════════════
                  TAB 1: INFORMASI PROFIL
-            ════════════════════════════════════════════ --}}
+                ════════════════════════════════════════════ --}}
                 <div x-show="activeTab === 'profile'" x-transition:enter="fade-enter" x-transition:leave="fade-leave"
                     style="display:none;">
                     <div class="content-header">
-                        <div>
-                            <h2 class="content-title">Informasi Profil</h2>
-                            <p class="content-sub">Perbarui nama, email, dan informasi dasar akun Anda.</p>
-                        </div>
+                        <h2 class="content-title">Informasi Profil</h2>
+                        <p class="content-sub">Perbarui nama, email, dan informasi dasar akun Anda.</p>
                     </div>
-
                     <div class="card">
                         @include('profile.partials.update-profile-information-form')
                     </div>
@@ -125,18 +120,15 @@
 
                 {{-- ════════════════════════════════════════════
                  TAB 2: KEAMANAN (PASSWORD)
-            ════════════════════════════════════════════ --}}
+                ════════════════════════════════════════════ --}}
                 <div x-show="activeTab === 'security'" x-transition:enter="fade-enter" x-transition:leave="fade-leave"
                     style="display:none;">
                     <div class="content-header">
-                        <div>
-                            <h2 class="content-title">Keamanan Akun</h2>
-                            <p class="content-sub">Kelola password dan preferensi keamanan login Anda.</p>
-                        </div>
+                        <h2 class="content-title">Keamanan Akun</h2>
+                        <p class="content-sub">Kelola password dan preferensi keamanan login Anda.</p>
                     </div>
 
-                    {{-- Password Change Card --}}
-                    <div class="card" style="margin-bottom:24px;">
+                    <div class="card card-mb">
                         <div class="section-header">
                             <div class="section-header-icon section-header-icon-blue">
                                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24"
@@ -150,11 +142,9 @@
                                 <p class="section-sub">Gunakan password yang kuat dan unik untuk keamanan maksimal.</p>
                             </div>
                         </div>
-
                         @include('profile.partials.update-password-form')
                     </div>
 
-                    {{-- Security Tips Card --}}
                     <div class="info-card">
                         <div class="info-icon">
                             <svg width="18" height="18" fill="none" viewBox="0 0 24 24"
@@ -177,15 +167,12 @@
 
                 {{-- ════════════════════════════════════════════
                  TAB 3: DANGER ZONE (DELETE ACCOUNT)
-            ════════════════════════════════════════════ --}}
+                ════════════════════════════════════════════ --}}
                 <div x-show="activeTab === 'danger'" x-transition:enter="fade-enter" x-transition:leave="fade-leave"
                     style="display:none;">
                     <div class="content-header">
-                        <div>
-                            <h2 class="content-title">Zona Berbahaya</h2>
-                            <p class="content-sub">Tindakan di area ini dapat mempengaruhi akun Anda secara permanen.
-                            </p>
-                        </div>
+                        <h2 class="content-title">Zona Berbahaya</h2>
+                        <p class="content-sub">Tindakan di area ini dapat mempengaruhi akun Anda secara permanen.</p>
                     </div>
 
                     <div class="card card-danger">
@@ -204,26 +191,7 @@
                             </div>
                         </div>
 
-                        <p style="color:var(--text-secondary); font-size:13px; line-height:1.6; margin:20px 0;">
-                            Setelah akun Anda dihapus:
-                        </p>
-                        <ul
-                            style="color:var(--text-secondary); font-size:13px; line-height:1.8; margin:0 0 20px 20px; padding:0;">
-                            <li>✗ Semua profil dan data pribadi akan dihapus</li>
-                            <li>✗ Riwayat aktivitas akan dihapus</li>
-                            <li>✗ Email Anda tidak akan lagi terdaftar di sistem</li>
-                            <li>✗ Tidak ada cara untuk memulihkan data ini</li>
-                        </ul>
-
-                        <button type="button" @click="showDelete = true" class="btn-danger-outline"
-                            style="justify-content:center;">
-                            <svg width="13" height="13" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Hapus Akun Saya
-                        </button>
+                        @include('profile.partials.delete-user-form')
                     </div>
                 </div>
 
@@ -232,10 +200,11 @@
 
         {{-- ══════════════════════════════════════════
          MODAL — DELETE ACCOUNT CONFIRM
-    ══════════════════════════════════════════ --}}
+        ══════════════════════════════════════════ --}}
         <div x-show="showDelete" class="modal-backdrop" @click.self="showDelete = false" style="display:none;"
             x-transition:enter="t-fade" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="t-fade" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+
             <div class="modal-box modal-box-sm" x-transition:enter="t-pop" x-transition:enter-start="pop-out"
                 x-transition:enter-end="pop-in" x-transition:leave="t-pop" x-transition:leave-start="pop-in"
                 x-transition:leave-end="pop-out">
@@ -260,12 +229,12 @@
                     @csrf
                     @method('delete')
 
-                    <div style="padding: 0 20px; margin-bottom: 20px; width: 100%;">
+                    <div class="modal-field-wrap">
                         <label class="field-label">Password <span class="field-required">*</span></label>
                         <input type="password" name="password" class="field-input"
                             placeholder="Masukkan password Anda" required autofocus>
                         @if ($errors->userDeletion->has('password'))
-                            <p style="font-size: 11px; color: #DC2626; margin-top: 6px;">
+                            <p class="field-error">
                                 @foreach ($errors->userDeletion->get('password') as $error)
                                     {{ $error }}
                                 @endforeach
@@ -273,12 +242,11 @@
                         @endif
                     </div>
 
-                    <div style="display:flex; gap:12px; padding:16px 20px; border-top:1px solid var(--border-soft);">
-                        <button type="button" @click="showDelete = false" class="btn-ghost-sm"
-                            style="flex:1; justify-content:center;">
+                    <div class="modal-actions">
+                        <button type="button" @click="showDelete = false" class="btn-ghost-sm btn-flex">
                             Batal
                         </button>
-                        <button type="submit" class="btn-danger" style="flex:1;">
+                        <button type="submit" class="btn-danger btn-flex">
                             <svg width="13" height="13" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -339,16 +307,6 @@
 
         .toast-enter {
             transition: opacity 200ms ease, transform 200ms ease;
-        }
-
-        .toast-enter-start {
-            opacity: 0;
-            transform: translateY(-6px);
-        }
-
-        .toast-enter-end {
-            opacity: 1;
-            transform: translateY(0);
         }
 
         .toast-leave {
@@ -458,6 +416,11 @@
         .content-sub {
             font-size: 13px;
             color: var(--text-secondary);
+        }
+
+        /* ── CARD ── */
+        .card-mb {
+            margin-bottom: 24px;
         }
 
         /* ── SECTION HEADER ── */
@@ -748,8 +711,7 @@
             border-radius: 16px;
             width: 100%;
             max-width: 500px;
-            box-shadow: 0 24px 64px rgba(26, 25, 22, 0.18),
-                0 4px 12px rgba(26, 25, 22, 0.08);
+            box-shadow: 0 24px 64px rgba(26, 25, 22, 0.18), 0 4px 12px rgba(26, 25, 22, 0.08);
             overflow: hidden;
         }
 
@@ -802,6 +764,61 @@
             gap: 0;
         }
 
+        .modal-field-wrap {
+            padding: 0 20px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-soft);
+        }
+
+        .btn-flex {
+            flex: 1;
+            justify-content: center;
+        }
+
+        /* ── DANGER ZONE LIST ── */
+        .danger-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .danger-list li {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* ── EMAIL VERIFY NOTICE ── */
+        .verify-notice {
+            margin-top: 12px;
+            padding: 12px;
+            background: #FEF3C7;
+            border: 1px solid #FCD34D;
+            border-radius: 8px;
+        }
+
+        .verify-notice p {
+            font-size: 12px;
+            color: #92400E;
+            margin: 0 0 8px 0;
+        }
+
+        .btn-primary-sm {
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+
+        /* ── RESPONSIVE ── */
         @media (max-width: 640px) {
             .page-header {
                 flex-direction: column;

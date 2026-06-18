@@ -1,4 +1,4 @@
-<form id="send-verification" method="post" action="{{ route('verification.send') }}" style="display:none;">
+<form id="send-verification" method="post" action="{{ route('verification.send') }}" class="hidden">
     @csrf
 </form>
 
@@ -32,13 +32,9 @@
         @endif
 
         @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail())
-            <div
-                style="margin-top: 12px; padding: 12px; background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 8px;">
-                <p style="font-size: 12px; color: #92400E; margin: 0 0 8px 0;">
-                    ⚠️ Email Anda belum diverifikasi.
-                </p>
-                <button type="button" form="send-verification" class="btn-primary"
-                    style="font-size: 12px; padding: 6px 12px;">
+            <div class="verify-notice">
+                <p>⚠️ Email Anda belum diverifikasi.</p>
+                <button type="submit" form="send-verification" class="btn-primary btn-primary-sm">
                     <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
