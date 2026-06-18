@@ -10,22 +10,10 @@
         }
     }" @keydown.escape.window="showDelete = false">
 
-        {{-- ══════════════════════════════════════════
-         PAGE HEADER
-        ══════════════════════════════════════════ --}}
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">Pengaturan Akun</h1>
-                <p class="page-sub">Kelola profil, keamanan, dan preferensi akun Anda.</p>
-            </div>
-        </div>
-
-        {{-- ══════════════════════════════════════════
-         FLASH TOASTS
-        ══════════════════════════════════════════ --}}
+        {{-- FLASH TOASTS --}}
         @if (session('status') === 'profile-updated')
-            <div class="toast toast-success" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
-                x-transition:enter="toast-enter" x-transition:leave="toast-leave">
+            <div class="ps-toast ps-toast--success" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+                x-transition:enter="ps-toast-enter" x-transition:leave="ps-toast-leave">
                 <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                     stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -36,8 +24,8 @@
         @endif
 
         @if (session('status') === 'password-updated')
-            <div class="toast toast-success" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
-                x-transition:enter="toast-enter" x-transition:leave="toast-leave">
+            <div class="ps-toast ps-toast--success" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+                x-transition:enter="ps-toast-enter" x-transition:leave="ps-toast-leave">
                 <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                     stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -48,8 +36,8 @@
         @endif
 
         @if (session('status') === 'verification-link-sent')
-            <div class="toast toast-success" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
-                x-transition:enter="toast-enter" x-transition:leave="toast-leave">
+            <div class="ps-toast ps-toast--success" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+                x-transition:enter="ps-toast-enter" x-transition:leave="ps-toast-leave">
                 <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                     stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -59,17 +47,21 @@
             </div>
         @endif
 
-        {{-- ══════════════════════════════════════════
-         SETTINGS LAYOUT — SIDEBAR + CONTENT
-        ══════════════════════════════════════════ --}}
-        <div class="settings-layout">
+        {{-- PAGE HEADER --}}
+        <div class="ps-page-header">
+            <h1 class="ps-page-title">Pengaturan Akun</h1>
+            <p class="ps-page-sub">Kelola profil, keamanan, dan preferensi akun Anda.</p>
+        </div>
 
-            {{-- SIDEBAR NAVIGATION --}}
-            <aside class="settings-sidebar">
-                <nav class="settings-nav">
+        {{-- LAYOUT: SIDEBAR + CONTENT --}}
+        <div class="ps-layout">
+
+            {{-- SIDEBAR --}}
+            <aside class="ps-sidebar">
+                <nav class="ps-nav">
                     <button @click="setTab('profile')"
-                        :class="activeTab === 'profile' ? 'nav-item active' : 'nav-item'">
-                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        :class="activeTab === 'profile' ? 'ps-nav__item ps-nav__item--active' : 'ps-nav__item'">
+                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                             stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -78,8 +70,8 @@
                     </button>
 
                     <button @click="setTab('security')"
-                        :class="activeTab === 'security' ? 'nav-item active' : 'nav-item'">
-                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        :class="activeTab === 'security' ? 'ps-nav__item ps-nav__item--active' : 'ps-nav__item'">
+                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                             stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -87,11 +79,12 @@
                         <span>Keamanan</span>
                     </button>
 
-                    <div class="nav-divider"></div>
+                    <div class="ps-nav__divider"></div>
 
                     <button @click="setTab('danger')"
-                        :class="activeTab === 'danger' ? 'nav-item danger active' : 'nav-item danger'">
-                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        :class="activeTab === 'danger' ? 'ps-nav__item ps-nav__item--danger ps-nav__item--active' :
+                            'ps-nav__item ps-nav__item--danger'">
+                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                             stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -101,61 +94,55 @@
                 </nav>
             </aside>
 
-            {{-- MAIN CONTENT AREA --}}
-            <main class="settings-content">
+            {{-- MAIN CONTENT --}}
+            <main class="ps-content">
 
-                {{-- ════════════════════════════════════════════
-                 TAB 1: INFORMASI PROFIL
-                ════════════════════════════════════════════ --}}
-                <div x-show="activeTab === 'profile'" x-transition:enter="fade-enter" x-transition:leave="fade-leave"
-                    style="display:none;">
-                    <div class="content-header">
-                        <h2 class="content-title">Informasi Profil</h2>
-                        <p class="content-sub">Perbarui nama, email, dan informasi dasar akun Anda.</p>
+                {{-- TAB: PROFIL --}}
+                <div x-show="activeTab === 'profile'" x-transition style="display:none;">
+                    <div class="ps-section-header">
+                        <h2 class="ps-section-title">Informasi Profil</h2>
+                        <p class="ps-section-sub">Perbarui nama dan email akun Anda.</p>
                     </div>
-                    <div class="card">
+                    <div class="ps-card">
                         @include('profile.partials.update-profile-information-form')
                     </div>
                 </div>
 
-                {{-- ════════════════════════════════════════════
-                 TAB 2: KEAMANAN (PASSWORD)
-                ════════════════════════════════════════════ --}}
-                <div x-show="activeTab === 'security'" x-transition:enter="fade-enter" x-transition:leave="fade-leave"
-                    style="display:none;">
-                    <div class="content-header">
-                        <h2 class="content-title">Keamanan Akun</h2>
-                        <p class="content-sub">Kelola password dan preferensi keamanan login Anda.</p>
+                {{-- TAB: KEAMANAN --}}
+                <div x-show="activeTab === 'security'" x-transition style="display:none;">
+                    <div class="ps-section-header">
+                        <h2 class="ps-section-title">Keamanan Akun</h2>
+                        <p class="ps-section-sub">Kelola password dan preferensi keamanan login Anda.</p>
                     </div>
 
-                    <div class="card card-mb">
-                        <div class="section-header">
-                            <div class="section-header-icon section-header-icon-blue">
-                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24"
+                    <div class="ps-card ps-card--mb">
+                        <div class="ps-card-header">
+                            <div class="ps-card-icon ps-card-icon--blue">
+                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="section-title">Ubah Password</h3>
-                                <p class="section-sub">Gunakan password yang kuat dan unik untuk keamanan maksimal.</p>
+                                <h3 class="ps-card-title">Ubah Password</h3>
+                                <p class="ps-card-desc">Gunakan password yang kuat dan unik.</p>
                             </div>
                         </div>
                         @include('profile.partials.update-password-form')
                     </div>
 
-                    <div class="info-card">
-                        <div class="info-icon">
-                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24"
+                    <div class="ps-info-card">
+                        <div class="ps-info-icon">
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
                         <div>
-                            <h4 class="info-title">Tips Keamanan</h4>
-                            <ul class="info-list">
+                            <h4 class="ps-info-title">Tips Keamanan</h4>
+                            <ul class="ps-info-list">
                                 <li>Gunakan kombinasi huruf besar, kecil, angka, dan simbol</li>
                                 <li>Hindari menggunakan nama pribadi atau tanggal lahir</li>
                                 <li>Password minimal 8 karakter</li>
@@ -165,32 +152,28 @@
                     </div>
                 </div>
 
-                {{-- ════════════════════════════════════════════
-                 TAB 3: DANGER ZONE (DELETE ACCOUNT)
-                ════════════════════════════════════════════ --}}
-                <div x-show="activeTab === 'danger'" x-transition:enter="fade-enter" x-transition:leave="fade-leave"
-                    style="display:none;">
-                    <div class="content-header">
-                        <h2 class="content-title">Zona Berbahaya</h2>
-                        <p class="content-sub">Tindakan di area ini dapat mempengaruhi akun Anda secara permanen.</p>
+                {{-- TAB: DANGER --}}
+                <div x-show="activeTab === 'danger'" x-transition style="display:none;">
+                    <div class="ps-section-header">
+                        <h2 class="ps-section-title">Zona Berbahaya</h2>
+                        <p class="ps-section-sub">Tindakan di area ini bersifat permanen dan tidak dapat dibatalkan.
+                        </p>
                     </div>
 
-                    <div class="card card-danger">
-                        <div class="section-header">
-                            <div class="section-header-icon section-header-icon-red">
-                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24"
+                    <div class="ps-card ps-card--danger">
+                        <div class="ps-card-header">
+                            <div class="ps-card-icon ps-card-icon--red">
+                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="section-title">Hapus Akun Secara Permanen</h3>
-                                <p class="section-sub">Tindakan ini tidak dapat dibatalkan. Semua data Anda akan
-                                    dihapus.</p>
+                                <h3 class="ps-card-title">Hapus Akun Secara Permanen</h3>
+                                <p class="ps-card-desc">Semua data Anda akan dihapus dan tidak bisa dipulihkan.</p>
                             </div>
                         </div>
-
                         @include('profile.partials.delete-user-form')
                     </div>
                 </div>
@@ -198,43 +181,40 @@
             </main>
         </div>
 
-        {{-- ══════════════════════════════════════════
-         MODAL — DELETE ACCOUNT CONFIRM
-        ══════════════════════════════════════════ --}}
-        <div x-show="showDelete" class="modal-backdrop" @click.self="showDelete = false" style="display:none;"
-            x-transition:enter="t-fade" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-            x-transition:leave="t-fade" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        {{-- MODAL: KONFIRMASI HAPUS --}}
+        <div x-show="showDelete" class="ps-modal-backdrop" @click.self="showDelete = false" style="display:none;"
+            x-transition:enter="ps-fade" x-transition:enter-start="ps-opacity-0"
+            x-transition:enter-end="ps-opacity-100" x-transition:leave="ps-fade"
+            x-transition:leave-start="ps-opacity-100" x-transition:leave-end="ps-opacity-0">
 
-            <div class="modal-box modal-box-sm" x-transition:enter="t-pop" x-transition:enter-start="pop-out"
-                x-transition:enter-end="pop-in" x-transition:leave="t-pop" x-transition:leave-start="pop-in"
-                x-transition:leave-end="pop-out">
+            <div class="ps-modal" x-transition:enter="ps-pop" x-transition:enter-start="ps-pop-out"
+                x-transition:enter-end="ps-pop-in" x-transition:leave="ps-pop" x-transition:leave-start="ps-pop-in"
+                x-transition:leave-end="ps-pop-out">
 
-                <div class="delete-body">
-                    <div class="delete-icon">
-                        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                <div class="ps-modal__body">
+                    <div class="ps-modal__icon">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                             stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
-                    <h3 class="delete-title">Hapus Akun?</h3>
-                    <p class="delete-sub">
-                        Akun Anda akan dihapus secara permanen. Masukkan password Anda untuk mengkonfirmasi tindakan
-                        ini.
-                    </p>
-                    <p class="delete-warn">Tindakan ini tidak dapat dibatalkan.</p>
+                    <h3 class="ps-modal__title">Hapus Akun?</h3>
+                    <p class="ps-modal__desc">Akun Anda akan dihapus secara permanen. Masukkan password untuk
+                        mengkonfirmasi.</p>
+                    <p class="ps-modal__warn">Tindakan ini tidak dapat dibatalkan.</p>
                 </div>
 
-                <form method="post" action="{{ route('profile.destroy') }}" class="delete-footer">
+                <form method="post" action="{{ route('profile.destroy') }}">
                     @csrf
                     @method('delete')
 
-                    <div class="modal-field-wrap">
-                        <label class="field-label">Password <span class="field-required">*</span></label>
-                        <input type="password" name="password" class="field-input"
-                            placeholder="Masukkan password Anda" required autofocus>
+                    <div class="ps-modal__field">
+                        <label class="ps-label">Password <span class="ps-required">*</span></label>
+                        <input type="password" name="password" class="ps-input" placeholder="Masukkan password Anda"
+                            required autofocus>
                         @if ($errors->userDeletion->has('password'))
-                            <p class="field-error">
+                            <p class="ps-error">
                                 @foreach ($errors->userDeletion->get('password') as $error)
                                     {{ $error }}
                                 @endforeach
@@ -242,11 +222,10 @@
                         @endif
                     </div>
 
-                    <div class="modal-actions">
-                        <button type="button" @click="showDelete = false" class="btn-ghost-sm btn-flex">
-                            Batal
-                        </button>
-                        <button type="submit" class="btn-danger btn-flex">
+                    <div class="ps-modal__footer">
+                        <button type="button" @click="showDelete = false"
+                            class="ps-btn ps-btn--ghost">Batal</button>
+                        <button type="submit" class="ps-btn ps-btn--danger">
                             <svg width="13" height="13" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -264,224 +243,220 @@
     @include('layouts.table-styles')
 
     <style>
-        /* ── PAGE HEADER ── */
-        .page-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            margin-bottom: 32px;
-            gap: 16px;
-            flex-wrap: wrap;
+        /* ═══════════════════════════════════
+           PREFIXED: ps- (profile-settings)
+           Semua class pakai prefix agar tidak
+           bentrok dengan global styles.
+        ═══════════════════════════════════ */
+
+        /* PAGE HEADER */
+        .ps-page-header {
+            margin-bottom: 28px;
         }
 
-        .page-title {
-            font-size: 24px;
+        .ps-page-title {
+            font-size: 22px;
             font-weight: 700;
             color: var(--text-primary);
             letter-spacing: -0.02em;
+            line-height: 1.2;
         }
 
-        .page-sub {
+        .ps-page-sub {
             font-size: 13px;
             color: var(--text-secondary);
-            margin-top: 4px;
+            margin-top: 3px;
         }
 
-        /* ── TOASTS ── */
-        .toast {
+        /* TOAST */
+        .ps-toast {
             display: flex;
             align-items: center;
-            gap: 9px;
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 8px;
             font-size: 13px;
             font-weight: 500;
             margin-bottom: 16px;
         }
 
-        .toast-success {
+        .ps-toast--success {
             background: #F0FDF4;
             border: 1px solid #BBF7D0;
             color: #15803D;
         }
 
-        .toast-enter {
+        .ps-toast-enter {
             transition: opacity 200ms ease, transform 200ms ease;
         }
 
-        .toast-leave {
+        .ps-toast-leave {
             transition: opacity 150ms ease;
         }
 
-        /* ── SETTINGS LAYOUT ── */
-        .settings-layout {
+        /* LAYOUT */
+        .ps-layout {
             display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 32px;
-            margin-bottom: 40px;
+            grid-template-columns: 200px 1fr;
+            gap: 24px;
+            align-items: start;
         }
 
-        @media (max-width: 968px) {
-            .settings-layout {
-                grid-template-columns: 240px 1fr;
-                gap: 24px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .settings-layout {
-                grid-template-columns: 1fr;
-                gap: 24px;
-            }
-        }
-
-        /* ── SIDEBAR ── */
-        .settings-sidebar {
+        /* SIDEBAR */
+        .ps-sidebar {
             position: sticky;
-            top: 20px;
-            height: fit-content;
+            top: 16px;
         }
 
-        .settings-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
+        .ps-nav {
             background: var(--bg-surface);
             border: 1px solid var(--border);
-            border-radius: var(--radius-md);
+            border-radius: 10px;
             overflow: hidden;
         }
 
-        .nav-item {
+        .ps-nav__item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
+            gap: 9px;
+            width: 100%;
+            padding: 10px 14px;
             border: none;
+            border-left: 3px solid transparent;
             background: none;
             color: var(--text-secondary);
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             text-align: left;
-            transition: all 150ms ease;
-            border-left: 3px solid transparent;
+            transition: all 120ms ease;
         }
 
-        .nav-item:hover {
+        .ps-nav__item:hover {
             background: var(--bg-base);
             color: var(--text-primary);
         }
 
-        .nav-item.active {
-            background: rgba(217, 119, 6, 0.05);
+        .ps-nav__item--active {
+            background: rgba(217, 119, 6, .06);
             color: var(--accent);
             border-left-color: var(--accent);
+            font-weight: 600;
         }
 
-        .nav-item.danger {
+        .ps-nav__item--danger {
             color: #DC2626;
         }
 
-        .nav-item.danger:hover {
-            background: #FEE2E2;
+        .ps-nav__item--danger:hover {
+            background: #FEF2F2;
         }
 
-        .nav-item.danger.active {
-            background: #FEE2E2;
+        .ps-nav__item--danger.ps-nav__item--active {
+            background: #FEF2F2;
             border-left-color: #DC2626;
         }
 
-        .nav-divider {
+        .ps-nav__divider {
             height: 1px;
-            background: var(--border-soft);
+            background: var(--border-soft, #eee);
         }
 
-        /* ── CONTENT AREA ── */
-        .settings-content {
-            min-height: 400px;
+        /* CONTENT */
+        .ps-content {
+            min-width: 0;
         }
 
-        .content-header {
-            margin-bottom: 28px;
+        .ps-section-header {
+            margin-bottom: 16px;
         }
 
-        .content-title {
-            font-size: 20px;
+        .ps-section-title {
+            font-size: 17px;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 4px;
         }
 
-        .content-sub {
+        .ps-section-sub {
             font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        /* ── CARD ── */
-        .card-mb {
-            margin-bottom: 24px;
-        }
-
-        /* ── SECTION HEADER ── */
-        .section-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 24px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-soft);
-        }
-
-        .section-header-icon {
-            flex-shrink: 0;
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: #F3F0EA;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-        }
-
-        .section-header-icon-blue {
-            background: #DBEAFE;
-            color: #1E40AF;
-        }
-
-        .section-header-icon-red {
-            background: #FEE2E2;
-            color: #DC2626;
-        }
-
-        .section-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .section-sub {
-            font-size: 12px;
             color: var(--text-secondary);
             margin-top: 2px;
         }
 
-        /* ── INFO CARD ── */
-        .info-card {
+        /* CARD */
+        .ps-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 24px;
+        }
+
+        .ps-card--mb {
+            margin-bottom: 16px;
+        }
+
+        .ps-card--danger {
+            border-color: #FCA5A5;
+            background: #FFFBFB;
+        }
+
+        /* CARD HEADER (icon + title row) */
+        .ps-card-header {
             display: flex;
-            gap: 16px;
-            padding: 16px;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-soft, #eee);
+        }
+
+        .ps-card-icon {
+            flex-shrink: 0;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ps-card-icon--blue {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .ps-card-icon--red {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .ps-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .ps-card-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 1px;
+        }
+
+        /* INFO CARD */
+        .ps-info-card {
+            display: flex;
+            gap: 12px;
+            padding: 14px 16px;
             background: #F0FDF4;
             border: 1px solid #BBF7D0;
             border-radius: 10px;
         }
 
-        .info-icon {
+        .ps-info-icon {
             flex-shrink: 0;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
             background: white;
             display: flex;
             align-items: center;
@@ -489,368 +464,336 @@
             color: #15803D;
         }
 
-        .info-title {
+        .ps-info-title {
             font-size: 13px;
             font-weight: 700;
             color: #15803D;
             margin-bottom: 6px;
         }
 
-        .info-list {
+        .ps-info-list {
             list-style: none;
             padding: 0;
             margin: 0;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 3px;
         }
 
-        .info-list li {
+        .ps-info-list li {
             font-size: 12px;
-            color: #15803D;
+            color: #166534;
             line-height: 1.5;
         }
 
-        /* ── DANGER CARD ── */
-        .card-danger {
-            border: 1px solid #FCA5A5;
-            background: #FFFBFB;
-        }
-
-        /* ── FORM STYLES ── */
-        .form-section {
+        /* FORM */
+        .ps-form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
         }
 
-        .field-group {
+        .ps-field {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
         }
 
-        .field-label {
-            font-size: 12px;
+        .ps-label {
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-primary);
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.4px;
         }
 
-        .field-required {
+        .ps-required {
             color: #DC2626;
         }
 
-        .field-input {
-            padding: 10px 12px;
+        .ps-input {
+            height: 36px;
+            padding: 0 12px;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 7px;
             font-size: 13px;
             font-family: inherit;
             background: var(--bg-base);
             color: var(--text-primary);
-            transition: all 150ms ease;
+            transition: border-color 120ms ease, box-shadow 120ms ease;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .field-input:focus {
+        .ps-input:focus {
             outline: none;
             border-color: var(--accent);
             background: var(--bg-surface);
-            box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.1);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, .12);
         }
 
-        .field-hint {
+        .ps-hint {
             font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 2px;
+            color: var(--text-muted, #9ca3af);
         }
 
-        .field-error {
+        .ps-error {
             font-size: 11px;
             color: #DC2626;
-            margin-top: 4px;
         }
 
-        /* ── BUTTONS ── */
-        .button-group {
+        /* BUTTONS */
+        .ps-btn-group {
             display: flex;
-            gap: 12px;
-            align-items: center;
-            margin-top: 20px;
+            gap: 10px;
+            margin-top: 6px;
         }
 
-        .btn-primary {
+        .ps-btn {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 8px;
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 7px;
             font-size: 13px;
             font-weight: 600;
-            background: var(--accent);
-            color: white;
             cursor: pointer;
-            transition: all 150ms ease;
+            border: none;
+            transition: all 120ms ease;
+            white-space: nowrap;
         }
 
-        .btn-primary:hover {
-            background: var(--accent-hover);
+        .ps-btn--primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .ps-btn--primary:hover {
+            background: var(--accent-hover, #b45309);
             transform: translateY(-1px);
         }
 
-        .btn-primary:active {
+        .ps-btn--primary:active {
             transform: translateY(0);
         }
 
-        .btn-ghost-sm {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
+        .ps-btn--ghost {
             background: transparent;
+            border: 1px solid var(--border);
             color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 150ms ease;
+            flex: 1;
+            justify-content: center;
         }
 
-        .btn-ghost-sm:hover {
+        .ps-btn--ghost:hover {
             background: var(--bg-base);
             color: var(--text-primary);
         }
 
-        .btn-danger {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
+        .ps-btn--danger {
             background: #DC2626;
             color: white;
-            cursor: pointer;
-            transition: all 150ms ease;
+            flex: 1;
+            justify-content: center;
         }
 
-        .btn-danger:hover {
+        .ps-btn--danger:hover {
             background: #B91C1C;
         }
 
-        .btn-danger-outline {
+        .ps-btn--danger-outline {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 10px 16px;
-            border: 1px solid #DC2626;
-            border-radius: 8px;
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 7px;
             font-size: 13px;
             font-weight: 600;
+            cursor: pointer;
+            border: 1px solid #DC2626;
             background: transparent;
             color: #DC2626;
-            cursor: pointer;
-            transition: all 150ms ease;
+            transition: all 120ms ease;
         }
 
-        .btn-danger-outline:hover {
-            background: #FEE2E2;
+        .ps-btn--danger-outline:hover {
+            background: #FEF2F2;
         }
 
-        /* ── MODAL ── */
-        .modal-backdrop {
+        /* DANGER LIST */
+        .ps-danger-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .ps-danger-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .ps-danger-list li {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* VERIFY NOTICE */
+        .ps-verify {
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: #FEF3C7;
+            border: 1px solid #FCD34D;
+            border-radius: 7px;
+        }
+
+        .ps-verify p {
+            font-size: 12px;
+            color: #92400E;
+            margin: 0 0 8px;
+        }
+
+        /* MODAL */
+        .ps-modal-backdrop {
             position: fixed;
             inset: 0;
             z-index: 60;
-            background: rgba(26, 25, 22, 0.45);
-            backdrop-filter: blur(3px);
+            background: rgba(15, 15, 15, .4);
+            backdrop-filter: blur(4px);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
 
-        .t-fade {
-            transition: opacity 200ms ease;
+        .ps-fade {
+            transition: opacity 180ms ease;
         }
 
-        .opacity-0 {
+        .ps-opacity-0 {
             opacity: 0;
         }
 
-        .opacity-100 {
+        .ps-opacity-100 {
             opacity: 1;
         }
 
-        .t-pop {
-            transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), opacity 200ms ease;
+        .ps-pop {
+            transition: transform 200ms cubic-bezier(.4, 0, .2, 1), opacity 200ms ease;
         }
 
-        .pop-out {
-            transform: scale(0.92) translateY(8px);
+        .ps-pop-out {
+            transform: scale(.94) translateY(6px);
             opacity: 0;
         }
 
-        .pop-in {
+        .ps-pop-in {
             transform: scale(1) translateY(0);
             opacity: 1;
         }
 
-        .fade-enter {
-            transition: opacity 200ms ease;
-        }
-
-        .modal-box {
+        .ps-modal {
             background: var(--bg-surface);
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: 14px;
             width: 100%;
-            max-width: 500px;
-            box-shadow: 0 24px 64px rgba(26, 25, 22, 0.18), 0 4px 12px rgba(26, 25, 22, 0.08);
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .15), 0 4px 12px rgba(0, 0, 0, .06);
             overflow: hidden;
         }
 
-        .modal-box-sm {
-            max-width: 420px;
-        }
-
-        .delete-body {
-            padding: 32px 24px;
+        .ps-modal__body {
+            padding: 28px 24px 20px;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .delete-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+        .ps-modal__icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
             background: #FEE2E2;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #DC2626;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
-        .delete-title {
+        .ps-modal__title {
             font-size: 15px;
             font-weight: 700;
             color: var(--text-primary);
         }
 
-        .delete-sub {
+        .ps-modal__desc {
             font-size: 13px;
             color: var(--text-secondary);
             line-height: 1.5;
         }
 
-        .delete-warn {
+        .ps-modal__warn {
             font-size: 12px;
             color: #DC2626;
             font-weight: 600;
         }
 
-        .delete-footer {
+        .ps-modal__field {
+            padding: 0 24px 20px;
+        }
+
+        .ps-modal__footer {
             display: flex;
-            flex-direction: column;
-            gap: 0;
+            gap: 10px;
+            padding: 14px 24px;
+            border-top: 1px solid var(--border-soft, #eee);
         }
 
-        .modal-field-wrap {
-            padding: 0 20px;
-            margin-bottom: 20px;
-            width: 100%;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            padding: 16px 20px;
-            border-top: 1px solid var(--border-soft);
-        }
-
-        .btn-flex {
-            flex: 1;
-            justify-content: center;
-        }
-
-        /* ── DANGER ZONE LIST ── */
-        .danger-list {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 20px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .danger-list li {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        /* ── EMAIL VERIFY NOTICE ── */
-        .verify-notice {
-            margin-top: 12px;
-            padding: 12px;
-            background: #FEF3C7;
-            border: 1px solid #FCD34D;
-            border-radius: 8px;
-        }
-
-        .verify-notice p {
-            font-size: 12px;
-            color: #92400E;
-            margin: 0 0 8px 0;
-        }
-
-        .btn-primary-sm {
-            font-size: 12px;
-            padding: 6px 12px;
-        }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 640px) {
-            .page-header {
-                flex-direction: column;
-            }
-
-            .settings-layout {
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .ps-layout {
                 grid-template-columns: 1fr;
+                gap: 16px;
             }
 
-            .settings-sidebar {
+            .ps-sidebar {
                 position: static;
             }
 
-            .settings-nav {
+            .ps-nav {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
-                border-radius: 8px;
             }
 
-            .nav-item {
-                padding: 10px;
-                text-align: center;
+            .ps-nav__item {
+                padding: 9px 8px;
+                font-size: 12px;
                 border-left: none;
                 border-bottom: 3px solid transparent;
+                justify-content: center;
             }
 
-            .nav-item.active {
+            .ps-nav__item--active {
                 border-bottom-color: var(--accent);
                 border-left: none;
             }
 
-            .nav-divider {
+            .ps-nav__item--danger.ps-nav__item--active {
+                border-bottom-color: #DC2626;
+                border-left: none;
+            }
+
+            .ps-nav__divider {
                 display: none;
             }
         }

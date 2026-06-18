@@ -11,8 +11,8 @@ class UserController extends Controller
     // Menampilkan daftar Petugas/Satpam
     public function index()
     {
-        // Menampilkan user dengan role 'admin' atau 'operator'
-        $penggunas = User::whereIn('role', ['admin', 'operator'])->get();
+        // Menampilkan user dengan role 'admin' atau 'petugas'
+        $penggunas = User::whereIn('role', ['admin', 'petugas'])->get();
         return view('pengguna.index', compact('penggunas'));
     }
 
@@ -29,7 +29,7 @@ class UserController extends Controller
             'nama_lengkap' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:admin,operator'
+            'role' => 'required|in:admin,petugas'
         ]);
 
         User::create([
@@ -58,7 +58,7 @@ class UserController extends Controller
             'nama_lengkap' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id . ',id_pengguna',
             'password' => 'nullable|string|min:8',
-            'role' => 'required|in:admin,operator'
+            'role' => 'required|in:admin,petugas'
         ]);
 
         $data = [

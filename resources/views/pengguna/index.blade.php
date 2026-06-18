@@ -8,7 +8,7 @@
     
         /* ── EDIT ── */
         showEdit: false,
-        edit: { id: null, nama_lengkap: '', email: '', role: 'operator' },
+        edit: { id: null, nama_lengkap: '', email: '', role: 'petugas' },
         openEdit(user) {
             this.edit = { ...user };
             this.showEdit = true;
@@ -131,8 +131,8 @@
                                     <td style="text-align:center;">
                                         @if ($user->role === 'admin')
                                             <span class="badge-blue">Admin</span>
-                                        @elseif ($user->role === 'operator')
-                                            <span class="badge-green">Operator</span>
+                                        @elseif ($user->role === 'petugas')
+                                            <span class="badge-green">Petugas</span>
                                         @else
                                             <span class="badge-gray">{{ $user->role }}</span>
                                         @endif
@@ -175,7 +175,7 @@
                     <span class="table-footer-text">
                         {{ $penggunas->count() }} petugas terdaftar
                         · Admin: <strong>{{ $penggunas->where('role', 'admin')->count() }}</strong>
-                        · Operator: <strong>{{ $penggunas->where('role', 'operator')->count() }}</strong>
+                        · Petugas: <strong>{{ $penggunas->where('role', 'petugas')->count() }}</strong>
                     </span>
                 </div>
             @endif
@@ -231,9 +231,9 @@
                             <select name="role" class="field-input" required>
                                 <option value="">— Pilih akses —</option>
                                 <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="operator"
-                                    {{ old('role', 'operator') === 'operator' ? 'selected' : '' }}>
-                                    Operator</option>
+                                <option value="petugas"
+                                    {{ old('role', 'petugas') === 'petugas' ? 'selected' : '' }}>
+                                    Petugas</option>
                             </select>
                         </div>
                     </div>
@@ -317,7 +317,7 @@
                             <label class="field-label">Hak Akses <span class="field-required">*</span></label>
                             <select name="role" class="field-input" x-model="edit.role" required>
                                 <option value="admin">Admin</option>
-                                <option value="operator">Operator</option>
+                                <option value="petugas">Petugas</option>
                             </select>
                         </div>
                     </div>
