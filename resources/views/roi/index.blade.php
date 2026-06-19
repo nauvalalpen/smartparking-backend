@@ -34,7 +34,10 @@
         @endif
 
         <div class="roi-grid-alt">
-            {{-- KOLOM KIRI: CANVAS MENGGAMBAR --}}
+
+            {{-- ═══════════════════════════════
+                 KOLOM KIRI: CANVAS
+            ═══════════════════════════════ --}}
             <div class="roi-left-alt">
                 <div class="card roi-card-alt">
                     <div class="roi-card-header-alt">
@@ -47,19 +50,25 @@
                         </div>
                         <div>
                             <h2 class="roi-card-title-alt">Area Parkiran</h2>
-                            <p class="roi-card-sub-alt">Klik pada gambar untuk membuat poligon slot</p>
+                            <p class="roi-card-sub-alt">Klik untuk menambah titik · Double-click untuk menutup poligon
+                            </p>
                         </div>
                     </div>
 
-                    <div class="canvas-wrapper-alt">
+                    <div class="canvas-wrapper-alt" id="canvas-wrapper">
                         @if ($selectedKamera)
                             <img id="camera-frame"
                                 src="{{ asset('snapshots/kamera_' . $selectedKamera->id_kamera . '.jpg') }}"
                                 onerror="this.onerror=null; this.src='https://via.placeholder.com/640x480.png?text=Feed+Kamera+CCTV';"
-                                class="canvas-img-alt">
-                            <canvas id="roi-canvas" width="640" height="480" class="canvas-overlay-alt"></canvas>
+                                class="canvas-img-alt" alt="Camera Feed">
+                            <canvas id="roi-canvas" class="canvas-overlay-alt"></canvas>
                         @else
                             <div class="canvas-placeholder-alt">
+                                <svg width="40" height="40" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="1.5" style="color:#A09D97; margin-bottom:12px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
                                 <p>Pilih kamera terlebih dahulu untuk memulai</p>
                             </div>
                         @endif
@@ -74,13 +83,28 @@
                             </svg>
                             Reset
                         </button>
+                        <span class="roi-point-counter" id="point-counter" style="display:none;">
+                            <span id="point-count">0</span> titik
+                        </span>
+                        {{-- Legend ROI tersimpan --}}
+                        @if ($selectedKamera && $slots->count() > 0)
+                            <div class="canvas-legend">
+                                <span class="legend-dot legend-dot-saved"></span>
+                                <span class="legend-label">Tersimpan ({{ $slots->count() }})</span>
+                                <span class="legend-dot legend-dot-active" style="margin-left:10px;"></span>
+                                <span class="legend-label">Sedang digambar</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
 
-            {{-- KOLOM KANAN: FORM & LIST --}}
+            {{-- ═══════════════════════════════
+                 KOLOM KANAN: FORM + LIST
+            ═══════════════════════════════ --}}
             <div class="roi-right-alt">
-                {{-- Form Simpan --}}
+
+                {{-- ── Form Simpan ── --}}
                 <div class="card roi-card-alt">
                     <div class="roi-card-header-alt">
                         <div class="roi-card-icon-alt roi-card-icon-accent">
@@ -91,39 +115,41 @@
                         </div>
                         <div>
                             <h2 class="roi-card-title-alt">Tambah Slot</h2>
-                            <p class="roi-card-sub-alt">Simpan koordinat poligon yang telah digambar</p>
+                            <p class="roi-card-sub-alt">Isi nama lalu simpan koordinat poligon</p>
                         </div>
                     </div>
 
-                    <form action="{{ route('roi.store') }}" method="POST" class="roi-form-alt">
+                    <form action="{{ route('roi.store') }}" method="POST" class="roi-form-alt" id="roi-store-form">
                         @csrf
                         <input type="hidden" name="id_kamera" value="{{ $selectedKamera->id_kamera ?? '' }}">
 
                         <div class="field-group">
                             <label class="field-label">Nama Slot <span class="field-required">*</span></label>
-                            <input type="text" name="nama_slot" class="field-input" placeholder="Contoh: A1"
-                                required>
+                            <input type="text" name="nama_slot" id="nama_slot_input" class="field-input"
+                                placeholder="Contoh: A1" required>
                             <p class="field-hint">Nama unik untuk identifikasi slot parkir.</p>
                         </div>
 
                         <div class="field-group">
                             <label class="field-label">Koordinat (JSON) <span class="field-required">*</span></label>
-                            <textarea id="koordinat_input" name="koordinat_roi" rows="6" class="field-input field-textarea json-editor"
-                                readonly required placeholder="Gambar di canvas untuk mengisi ini..."></textarea>
-                            <p class="field-hint">Koordinat otomatis terisi saat menggambar pada canvas.</p>
+                            <textarea id="koordinat_input" name="koordinat_roi" rows="4" class="field-input field-textarea" readonly
+                                required placeholder="Gambar di canvas untuk mengisi ini..."></textarea>
+                            <p class="field-hint">Otomatis terisi · Double-click untuk tutup poligon.</p>
                         </div>
 
-                        <button type="submit" class="btn-primary" style="width: 100%;">
-                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24"
+                        {{-- Save button — lebih jelas, full-width, dengan state disabled --}}
+                        <button type="submit" id="btn-simpan" class="btn-simpan-roi" disabled>
+                            <svg width="15" height="15" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M17 16v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2M12 12V3m0 0L8 7m4-4l4 4" />
                             </svg>
-                            Simpan Slot
+                            <span id="btn-simpan-text">Gambar poligon terlebih dahulu</span>
                         </button>
                     </form>
                 </div>
 
-                {{-- List Tersimpan --}}
+                {{-- ── Slot Terdaftar ── --}}
                 <div class="card roi-card-alt">
                     <div class="roi-card-header-alt">
                         <div class="roi-card-icon-alt roi-card-icon-blue">
@@ -133,18 +159,23 @@
                                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                             </svg>
                         </div>
-                        <div>
+                        <div style="flex:1; min-width:0;">
                             <h2 class="roi-card-title-alt">Slot Terdaftar</h2>
-                            <p class="roi-card-sub-alt">Daftar slot yang telah dikonfigurasi</p>
+                            <p class="roi-card-sub-alt">{{ $slots->count() }} slot dikonfigurasi</p>
                         </div>
                     </div>
 
-                    <div class="roi-list-alt">
+                    {{-- Scrollable list --}}
+                    <div class="roi-list-scroll">
                         @forelse($slots as $slot)
-                            <div class="roi-list-item-alt">
-                                <div>
-                                    <p class="slot-name-alt">{{ $slot->nama_slot }}</p>
-                                    <p class="slot-coords-alt">{{ substr($slot->koordinat_roi, 0, 30) }}...</p>
+                            <div class="roi-list-item-alt" onmouseenter="highlightSlot('{{ $slot->id_slot }}')"
+                                onmouseleave="unhighlightSlot()">
+                                <div class="slot-info">
+                                    <div class="slot-badge">{{ strtoupper(substr($slot->nama_slot, 0, 2)) }}</div>
+                                    <div>
+                                        <p class="slot-name-alt">{{ $slot->nama_slot }}</p>
+                                        <p class="slot-coords-alt">{{ substr($slot->koordinat_roi, 0, 28) }}…</p>
+                                    </div>
                                 </div>
                                 <div class="roi-list-actions-alt">
                                     <a href="{{ route('roi.edit', $slot->id_slot) }}" class="btn-icon btn-icon-blue"
@@ -171,17 +202,48 @@
                             </div>
                         @empty
                             <div class="roi-empty-alt">
-                                <p>Belum ada slot terdaftar untuk kamera ini.</p>
+                                <svg width="32" height="32" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="1.5"
+                                    style="color:#D9D6D0; margin-bottom:8px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                <p>Belum ada slot terdaftar.</p>
+                                <p style="font-size:12px; margin-top:4px;">Gambar poligon di canvas lalu simpan.</p>
                             </div>
                         @endforelse
                     </div>
                 </div>
-            </div>
+
+            </div>{{-- /roi-right-alt --}}
         </div>
     </div>
 
     @include('layouts.form-styles')
     @include('layouts.table-styles')
+
+    {{-- Pass saved slots ke JS sebagai JSON --}}
+    @if ($selectedKamera)
+        @php
+            $slotsForJs = $slots
+                ->map(function ($s) {
+                    return [
+                        'id' => $s->id_slot,
+                        'nama' => $s->nama_slot,
+                        'coords' => json_decode($s->koordinat_roi, true) ?? [],
+                    ];
+                })
+                ->values()
+                ->all();
+        @endphp
+        <script>
+            const SAVED_SLOTS = @json($slotsForJs);
+        </script>
+    @else
+        <script>
+            const SAVED_SLOTS = [];
+        </script>
+    @endif
 
     <style>
         :root {
@@ -240,10 +302,10 @@
 
         .camera-selector-input:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, .1);
         }
 
-        /* ROI Grid */
+        /* Grid */
         .roi-grid-alt {
             display: grid;
             grid-template-columns: 1.5fr 1fr;
@@ -256,29 +318,6 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-        }
-
-        .roi-right-alt {
-            max-height: calc(100vh - 280px);
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-
-        .roi-right-alt::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .roi-right-alt::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .roi-right-alt::-webkit-scrollbar-thumb {
-            background: #D9D6D0;
-            border-radius: 3px;
-        }
-
-        .roi-right-alt::-webkit-scrollbar-thumb:hover {
-            background: #C9C6C0;
         }
 
         /* Card */
@@ -332,54 +371,55 @@
         /* Canvas */
         .canvas-wrapper-alt {
             position: relative;
-            display: block;
+            display: inline-block;
             width: 100%;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
-            overflow: hidden;
-            background: var(--bg-base);
+            background: #111;
+            line-height: 0;
         }
 
         .canvas-img-alt {
             display: block;
             width: 100%;
             height: auto;
-            max-height: 500px;
-            object-fit: cover;
+            border-radius: calc(var(--radius-md) - 1px);
         }
 
         .canvas-overlay-alt {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
             cursor: crosshair;
+            border-radius: calc(var(--radius-md) - 1px);
         }
 
         .canvas-placeholder-alt {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 400px;
+            min-height: 360px;
             color: var(--text-muted);
             text-align: center;
             font-size: 14px;
         }
 
-        /* ROI Actions */
+        /* Actions row */
         .roi-actions-alt {
             display: flex;
-            gap: 8px;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .btn-reset-alt {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 8px 14px;
-            border-radius: var(--radius-md);
+            padding: 7px 14px;
+            border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
             color: #DC2626;
@@ -394,11 +434,54 @@
             border-color: #FCA5A5;
         }
 
-        /* ROI Form */
+        .roi-point-counter {
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+
+        /* Legend */
+        .canvas-legend {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11.5px;
+            color: var(--text-muted);
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            padding: 5px 10px;
+            border-radius: 6px;
+            margin-left: auto;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-dot-saved {
+            background: #16A34A;
+        }
+
+        .legend-dot-active {
+            background: #DC2626;
+        }
+
+        .legend-label {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Form */
         .roi-form-alt {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
         }
 
         .field-textarea {
@@ -409,23 +492,116 @@
             color: var(--text-secondary);
         }
 
-        /* ROI List */
-        .roi-list-alt {
+        /* ── Tombol Simpan ── */
+        .btn-simpan-roi {
             display: flex;
-            flex-direction: column;
-            gap: 0;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 11px 16px;
+            border-radius: 9px;
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 150ms ease;
+        }
+
+        /* disabled: poligon belum digambar */
+        .btn-simpan-roi:disabled {
+            background: var(--bg-base);
+            color: var(--text-muted);
+            border: 1.5px dashed var(--border);
+            cursor: not-allowed;
+        }
+
+        /* ready: ada koordinat */
+        .btn-simpan-roi.ready {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 2px 8px rgba(217, 119, 6, .3);
+        }
+
+        .btn-simpan-roi.ready:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(217, 119, 6, .35);
+        }
+
+        .btn-simpan-roi.ready:active {
+            transform: translateY(0);
+        }
+
+        /* ── Slot List Scrollable ── */
+        .roi-list-scroll {
+            max-height: 320px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            margin: 0 -4px;
+            padding: 0 4px;
+        }
+
+        .roi-list-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .roi-list-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .roi-list-scroll::-webkit-scrollbar-thumb {
+            background: #D9D6D0;
+            border-radius: 3px;
+        }
+
+        .roi-list-scroll::-webkit-scrollbar-thumb:hover {
+            background: #C0BDB7;
         }
 
         .roi-list-item-alt {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 0;
+            padding: 10px 8px;
+            border-radius: 8px;
             border-bottom: 1px solid var(--border-soft);
+            transition: background 100ms ease;
+            cursor: default;
         }
 
         .roi-list-item-alt:last-child {
             border-bottom: none;
+        }
+
+        .roi-list-item-alt:hover {
+            background: #F7F6F3;
+        }
+
+        .roi-list-item-alt.highlighted {
+            background: #FEF3C7;
+        }
+
+        /* Slot item layout */
+        .slot-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .slot-badge {
+            flex-shrink: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            background: #DBEAFE;
+            color: #2563EB;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .slot-name-alt {
@@ -436,33 +612,36 @@
         }
 
         .slot-coords-alt {
-            font-size: 11px;
+            font-size: 10.5px;
             color: var(--text-muted);
-            margin: 3px 0 0 0;
+            margin: 2px 0 0;
             font-family: 'DM Mono', monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 160px;
         }
 
         .roi-list-actions-alt {
             display: flex;
             gap: 6px;
+            flex-shrink: 0;
         }
 
         .roi-empty-alt {
-            padding: 16px;
+            padding: 24px 16px;
             text-align: center;
             color: var(--text-muted);
             font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* Responsive */
         @media (max-width: 1200px) {
             .roi-grid-alt {
                 grid-template-columns: 1fr;
-            }
-
-            .roi-right-alt {
-                max-height: none;
-                overflow-y: visible;
             }
         }
 
@@ -472,10 +651,7 @@
                 align-items: stretch;
             }
 
-            .camera-selector-label {
-                width: 100%;
-            }
-
+            .camera-selector-label,
             .camera-selector-input {
                 width: 100%;
             }
@@ -494,121 +670,270 @@
                 width: 32px;
                 height: 32px;
             }
+
+            .canvas-legend {
+                display: none;
+            }
         }
     </style>
 
-    <!-- JAVASCRIPT UNTUK MENGGAMBAR POLIGON -->
     <script>
-        // Fungsi Dropdown
-        function changeKamera(idKamera) {
-            if (idKamera) {
-                window.location.href = "{{ route('roi.index') }}?kamera_id=" + idKamera;
-            }
-        }
+        (function() {
+            /* ── refs ── */
+            const canvas = document.getElementById('roi-canvas');
+            if (!canvas) return;
 
-        // Script Canvas
-        const canvas = document.getElementById('roi-canvas');
-        if (canvas) {
             const ctx = canvas.getContext('2d');
-            const inputKoordinat = document.getElementById('koordinat_input');
-            const canvasImg = document.getElementById('camera-frame');
+            const img = document.getElementById('camera-frame');
+            const inputKoord = document.getElementById('koordinat_input');
+            const counter = document.getElementById('point-counter');
+            const countNum = document.getElementById('point-count');
+            const btnSimpan = document.getElementById('btn-simpan');
+            const btnText = document.getElementById('btn-simpan-text');
+
             let points = [];
+            let closed = false;
+            let hoveredSlot = null; /* id slot yang di-hover dari list */
 
-            // Get the image and set canvas dimensions based on image
-            if (canvasImg.complete) {
-                initCanvas();
-            } else {
-                canvasImg.onload = initCanvas;
-            }
-
-            function initCanvas() {
-                // Set canvas size based on container and image
-                const container = canvas.parentElement;
-                const containerRect = container.getBoundingClientRect();
-                const imgRect = canvasImg.getBoundingClientRect();
-
-                // Use image dimensions for canvas resolution
-                canvas.width = canvasImg.naturalWidth || 640;
-                canvas.height = canvasImg.naturalHeight || 480;
-
-                // Set display size
-                canvas.style.width = imgRect.width + 'px';
-                canvas.style.height = imgRect.height + 'px';
-
+            /* ═══════════════════════════════════════
+               1. SYNC CANVAS SIZE ke render gambar
+            ═══════════════════════════════════════ */
+            function syncCanvasSize() {
+                if (!img.naturalWidth) return;
+                const r = img.getBoundingClientRect();
+                canvas.style.width = r.width + 'px';
+                canvas.style.height = r.height + 'px';
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
                 redraw();
             }
 
-            canvas.addEventListener('click', function(event) {
+            if (img.complete && img.naturalWidth) {
+                syncCanvasSize();
+            } else {
+                img.addEventListener('load', syncCanvasSize);
+            }
+            const ro = new ResizeObserver(syncCanvasSize);
+            ro.observe(img);
+
+            /* ═══════════════════════════════════════
+               2. KLIK — koordinat akurat
+            ═══════════════════════════════════════ */
+            canvas.addEventListener('click', function(e) {
+                if (closed) return;
                 const rect = canvas.getBoundingClientRect();
-                const imgRect = document.getElementById('camera-frame').getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const x = Math.round((e.clientX - rect.left) * scaleX);
+                const y = Math.round((e.clientY - rect.top) * scaleY);
+                if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) return;
+                points.push({
+                    x,
+                    y
+                });
+                updateCounter();
+                updateInput();
+                redraw();
+            });
 
-                // Calculate position relative to canvas internal resolution
-                const x = Math.round((event.clientX - imgRect.left) * (canvas.width / imgRect.width));
-                const y = Math.round((event.clientY - imgRect.top) * (canvas.height / imgRect.height));
-
-                // Only add point if within canvas bounds
-                if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) {
-                    points.push({
-                        x: x,
-                        y: y
-                    });
+            /* Double-click: tutup poligon */
+            canvas.addEventListener('dblclick', function() {
+                if (points.length >= 3) {
+                    closed = true;
+                    updateInput();
+                    updateSaveButton();
                     redraw();
                 }
             });
 
-            // Add double-click to close polygon
-            canvas.addEventListener('dblclick', function() {
-                if (points.length > 2) {
-                    updateInputValue();
-                }
-            });
-
+            /* ═══════════════════════════════════════
+               3. REDRAW — current + semua saved
+            ═══════════════════════════════════════ */
             function redraw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                if (points.length > 0) {
-                    // Draw polygon
+                const dotR = Math.max(5, canvas.width * 0.006);
+                const lw = Math.max(2, canvas.width * 0.003);
+                const fs = Math.max(12, canvas.width * 0.014);
+
+                /* ── Render semua ROI tersimpan ── */
+                if (typeof SAVED_SLOTS !== 'undefined') {
+                    SAVED_SLOTS.forEach(function(slot) {
+                        if (!slot.coords || slot.coords.length < 2) return;
+
+                        const isHover = (hoveredSlot === String(slot.id));
+
+                        ctx.beginPath();
+                        ctx.moveTo(slot.coords[0].x, slot.coords[0].y);
+                        for (let i = 1; i < slot.coords.length; i++) {
+                            ctx.lineTo(slot.coords[i].x, slot.coords[i].y);
+                        }
+                        ctx.closePath();
+
+                        /* fill */
+                        ctx.fillStyle = isHover ?
+                            'rgba(22, 163, 74, 0.35)' :
+                            'rgba(22, 163, 74, 0.18)';
+                        ctx.fill();
+
+                        /* stroke */
+                        ctx.lineWidth = isHover ? lw * 1.8 : lw;
+                        ctx.strokeStyle = isHover ? '#16A34A' : '#22C55E';
+                        ctx.setLineDash([]);
+                        ctx.stroke();
+
+                        /* Label nama slot — background pill */
+                        const cx = slot.coords.reduce((s, p) => s + p.x, 0) / slot.coords.length;
+                        const cy = slot.coords.reduce((s, p) => s + p.y, 0) / slot.coords.length;
+
+                        ctx.font = `bold ${fs}px sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+
+                        const tw = ctx.measureText(slot.nama).width;
+                        const ph = fs * 0.45,
+                            pw = fs * 0.6;
+
+                        /* pill background */
+                        ctx.fillStyle = isHover ? '#15803D' : '#16A34A';
+                        roundRect(ctx, cx - tw / 2 - pw, cy - fs / 2 - ph, tw + pw * 2, fs + ph * 2, fs * 0.4);
+                        ctx.fill();
+
+                        /* teks */
+                        ctx.fillStyle = '#fff';
+                        ctx.fillText(slot.nama, cx, cy);
+                    });
+                }
+
+                /* ── Render poligon yang sedang digambar ── */
+                if (points.length === 0) return;
+
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+                if (closed) ctx.closePath();
+
+                ctx.fillStyle = closed ? 'rgba(37, 99, 235, 0.25)' : 'rgba(37, 99, 235, 0.10)';
+                ctx.fill();
+                ctx.lineWidth = lw;
+                ctx.strokeStyle = closed ? '#2563EB' : '#60A5FA';
+                ctx.setLineDash(closed ? [] : [8, 4]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                points.forEach(function(p, i) {
                     ctx.beginPath();
-                    ctx.moveTo(points[0].x, points[0].y);
-                    for (let i = 1; i < points.length; i++) {
-                        ctx.lineTo(points[i].x, points[i].y);
-                    }
-                    ctx.closePath();
-                    ctx.fillStyle = "rgba(37, 99, 235, 0.3)";
+                    ctx.arc(p.x, p.y, dotR, 0, 2 * Math.PI);
+                    ctx.fillStyle = i === 0 ? '#16A34A' : '#DC2626';
                     ctx.fill();
-                    ctx.lineWidth = 2;
-                    ctx.strokeStyle = "#2563EB";
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = Math.max(1.5, lw * 0.8);
                     ctx.stroke();
 
-                    // Draw points
-                    points.forEach(point => {
-                        ctx.beginPath();
-                        ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
-                        ctx.fillStyle = "#DC2626";
-                        ctx.fill();
-                        ctx.strokeStyle = "#fff";
-                        ctx.lineWidth = 2;
-                        ctx.stroke();
-                    });
+                    ctx.font = `bold ${fs}px sans-serif`;
+                    ctx.fillStyle = '#fff';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(i + 1, p.x, p.y);
+                });
+            }
+
+            /* helper: rounded rect path */
+            function roundRect(ctx, x, y, w, h, r) {
+                ctx.beginPath();
+                ctx.moveTo(x + r, y);
+                ctx.lineTo(x + w - r, y);
+                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+                ctx.lineTo(x + w, y + h - r);
+                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                ctx.lineTo(x + r, y + h);
+                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+                ctx.lineTo(x, y + r);
+                ctx.quadraticCurveTo(x, y, x + r, y);
+                ctx.closePath();
+            }
+
+            /* ═══════════════════════════════════════
+               4. STATE HELPERS
+            ═══════════════════════════════════════ */
+            function updateInput() {
+                if (points.length > 0) inputKoord.value = JSON.stringify(points);
+            }
+
+            function updateCounter() {
+                if (!counter) return;
+                counter.style.display = points.length > 0 ? 'inline-flex' : 'none';
+                if (countNum) countNum.textContent = points.length;
+            }
+
+            function updateSaveButton() {
+                if (!btnSimpan) return;
+                const hasCoords = points.length >= 3 && closed;
+                if (hasCoords) {
+                    btnSimpan.disabled = false;
+                    btnSimpan.classList.add('ready');
+                    if (btnText) btnText.textContent = 'Simpan Slot';
+                } else {
+                    btnSimpan.disabled = true;
+                    btnSimpan.classList.remove('ready');
+                    if (btnText) btnText.textContent = 'Gambar poligon terlebih dahulu';
                 }
             }
 
-            function updateInputValue() {
-                if (points.length >= 3) {
-                    inputKoordinat.value = JSON.stringify(points);
-                } else {
-                    inputKoordinat.value = JSON.stringify(points);
-                }
+            /* Aktifkan tombol juga saat koordinat textarea terisi (mis. dari double-click) */
+            if (inputKoord) {
+                const obs = new MutationObserver(updateSaveButton);
+                obs.observe(inputKoord, {
+                    attributes: true,
+                    childList: true,
+                    subtree: true
+                });
+                inputKoord.addEventListener('input', updateSaveButton);
             }
 
             function clearCanvas() {
                 points = [];
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                inputKoordinat.value = '';
+                closed = false;
+                if (inputKoord) inputKoord.value = '';
+                updateCounter();
+                updateSaveButton();
+                redraw();
             }
 
-            // Expose functions to global scope
             window.clearCanvas = clearCanvas;
+
+            /* ═══════════════════════════════════════
+               5. HOVER HIGHLIGHT dari list slot
+            ═══════════════════════════════════════ */
+            window.highlightSlot = function(id) {
+                hoveredSlot = String(id);
+                redraw();
+                /* Tambah class ke item list */
+                document.querySelectorAll('.roi-list-item-alt').forEach(function(el) {
+                    el.classList.toggle('highlighted', el.dataset.slotId === String(id));
+                });
+            };
+            window.unhighlightSlot = function() {
+                hoveredSlot = null;
+                redraw();
+                document.querySelectorAll('.roi-list-item-alt').forEach(function(el) {
+                    el.classList.remove('highlighted');
+                });
+            };
+
+            /* Set data-slot-id pada setiap list item agar class toggle bisa match */
+            document.querySelectorAll('.roi-list-item-alt').forEach(function(el) {
+                const onenter = el.getAttribute('onmouseenter');
+                if (onenter) {
+                    const m = onenter.match(/'([^']+)'/);
+                    if (m) el.dataset.slotId = m[1];
+                }
+            });
+
+        })();
+
+        function changeKamera(idKamera) {
+            if (idKamera) window.location.href = "{{ route('roi.index') }}?kamera_id=" + idKamera;
         }
     </script>
 </x-app-layout>
