@@ -7,6 +7,7 @@ use App\Models\Slot;
 use App\Models\SlotHistory;
 use Carbon\Carbon;
 
+
 class SlotController extends Controller
 {
     // API GET: Untuk Aplikasi Mobile (Melihat Sisa Parkir)
@@ -15,14 +16,15 @@ class SlotController extends Controller
         $slots = Slot::with('camera')->get();
         $total = $slots->count();
         $terisi = $slots->where('status', 'terisi')->count();
-        
+        $kameras = \App\Models\KameraCctv::all();
         return response()->json([
             'status' => 'success',
             'summary' =>[
                 'total_slot' => $total,
                 'sisa_slot' => $total - $terisi,
             ],
-            'data' => $slots
+            'data' => $slots,
+            'kameras' => $kameras
         ]);
     }
 
