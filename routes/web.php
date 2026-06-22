@@ -36,9 +36,16 @@ Route::get('/konfigurasi-roi/{id}/edit', [SlotController::class, 'editRoi'])->na
 Route::put('/konfigurasi-roi/{id}', [SlotController::class, 'updateRoi'])->name('roi.update');
 Route::delete('/konfigurasi-roi/{id}', [SlotController::class, 'destroyRoi'])->name('roi.destroy');
 
+// --- ROUTE KONFIGURASI GARIS ROI ---
+Route::post('/konfigurasi-roi/line/store', [SlotController::class, 'storeLine'])->name('roi.line.store');
+Route::get('/konfigurasi-roi/line/{id}/edit', [SlotController::class, 'editLine'])->name('roi.line.edit');
+Route::put('/konfigurasi-roi/line/{id}', [SlotController::class, 'updateLine'])->name('roi.line.update');
+Route::delete('/konfigurasi-roi/line/{id}', [SlotController::class, 'destroyLine'])->name('roi.line.destroy');
+
 // Route untuk Halaman Konfigurasi RoI
 Route::get('/kamera/{id_kamera}/roi', [SlotController::class, 'createRoi'])->name('kamera.roi');
 Route::post('/kamera/{id_kamera}/roi',[SlotController::class, 'storeRoi'])->name('kamera.roi.store');
+Route::post('/kamera/{id_kamera}/garis', [App\Http\Controllers\KameraController::class, 'storeGaris'])->name('kamera.garis.store');
 
 
 // Route Laporan dan Export

@@ -63,6 +63,19 @@ class KameraController extends Controller
 
         return redirect()->route('kamera.index')->with('success', 'Kamera CCTV berhasil diperbarui!');
     }
+    // Menyimpan koordinat Garis Traffic Flow
+    public function storeGaris(Request $request, $id_kamera)
+    {
+        $request->validate([
+            'koordinat_garis' => 'required|json'
+        ]);
+
+        $kamera = \App\Models\KameraCctv::findOrFail($id_kamera);
+        $kamera->koordinat_garis = $request->koordinat_garis;
+        $kamera->save();
+
+        return redirect()->back()->with('success', 'Garis Traffic Flow berhasil disimpan!');
+    }
 
     // 4. Menghapus Data (Proses Delete)
     public function destroy($id)

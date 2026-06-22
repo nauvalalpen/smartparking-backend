@@ -7,7 +7,7 @@ class KameraCctv extends Model
 {
     protected $table = 'kamera_cctvs';
     protected $primaryKey = 'id_kamera';
-    protected $fillable =['id_area', 'nama_kamera', 'rtsp_url', 'status'];
+    protected $fillable =['id_area', 'nama_kamera', 'rtsp_url', 'koordinat_garis', 'status'];
 
     public function slots() {
         return $this->hasMany(Slot::class, 'id_kamera', 'id_kamera');

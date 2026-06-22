@@ -1,7 +1,8 @@
 <x-app-layout>
-    <x-slot name="header">Konfigurasi Region of Interest</x-slot>
+    <x-slot name="header">Konfigurasi Region of Interest & Garis Traffic</x-slot>
 
-    <div class="roi-page-alt">
+    <div class="roi-page-alt" x-data="{ mode: 'slot' }">
+
         {{-- Camera selector --}}
         <div class="card camera-selector-card">
             <div class="camera-selector-inner">
@@ -49,10 +50,32 @@
                             </svg>
                         </div>
                         <div>
-                            <h2 class="roi-card-title-alt">Area Parkiran</h2>
-                            <p class="roi-card-sub-alt">Klik untuk menambah titik · Double-click untuk menutup poligon
+                            <h2 class="roi-card-title-alt">Area Parkiran & Garis Sensor</h2>
+                            <p class="roi-card-sub-alt" id="canvas-hint">
+                                Mode Slot: klik untuk titik, double-click untuk menutup poligon
                             </p>
                         </div>
+                    </div>
+
+                    {{-- ── Mode Toggle ── --}}
+                    <div class="mode-toggle">
+                        <button type="button" id="btn-mode-slot" class="mode-btn mode-btn-active"
+                            onclick="setMode('slot')">
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Mode Slot (Poligon)
+                        </button>
+                        <button type="button" id="btn-mode-line" class="mode-btn" onclick="setMode('line')">
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M4 12h16M4 12l4-4m-4 4l4 4M20 12l-4-4m4 4l-4 4" />
+                            </svg>
+                            Mode Garis (Traffic Flow)
+                        </button>
                     </div>
 
                     <div class="canvas-wrapper-alt" id="canvas-wrapper">
@@ -86,11 +109,13 @@
                         <span class="roi-point-counter" id="point-counter" style="display:none;">
                             <span id="point-count">0</span> titik
                         </span>
-                        {{-- Legend ROI tersimpan --}}
-                        @if ($selectedKamera && $slots->count() > 0)
+
+                        @if ($selectedKamera)
                             <div class="canvas-legend">
                                 <span class="legend-dot legend-dot-saved"></span>
-                                <span class="legend-label">Tersimpan ({{ $slots->count() }})</span>
+                                <span class="legend-label">Slot ({{ $slots->count() }})</span>
+                                <span class="legend-dot legend-dot-line" style="margin-left:10px;"></span>
+                                <span class="legend-label">Garis ({{ $lines->count() ?? 0 }})</span>
                                 <span class="legend-dot legend-dot-active" style="margin-left:10px;"></span>
                                 <span class="legend-label">Sedang digambar</span>
                             </div>
@@ -104,12 +129,12 @@
             ═══════════════════════════════ --}}
             <div class="roi-right-alt">
 
-                {{-- ── Form Simpan ── --}}
-                <div class="card roi-card-alt">
+                {{-- ── FORM SLOT (tampil saat mode = slot) ── --}}
+                <div class="card roi-card-alt" id="form-card-slot">
                     <div class="roi-card-header-alt">
                         <div class="roi-card-icon-alt roi-card-icon-accent">
-                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="2">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                             </svg>
                         </div>
@@ -119,14 +144,14 @@
                         </div>
                     </div>
 
-                    <form action="{{ route('roi.store') }}" method="POST" class="roi-form-alt" id="roi-store-form">
+                    <form action="{{ route('roi.store') }}" method="POST" class="roi-form-alt">
                         @csrf
                         <input type="hidden" name="id_kamera" value="{{ $selectedKamera->id_kamera ?? '' }}">
 
                         <div class="field-group">
                             <label class="field-label">Nama Slot <span class="field-required">*</span></label>
-                            <input type="text" name="nama_slot" id="nama_slot_input" class="field-input"
-                                placeholder="Contoh: A1" required>
+                            <input type="text" name="nama_slot" class="field-input" placeholder="Contoh: A1"
+                                required>
                             <p class="field-hint">Nama unik untuk identifikasi slot parkir.</p>
                         </div>
 
@@ -137,14 +162,59 @@
                             <p class="field-hint">Otomatis terisi · Double-click untuk tutup poligon.</p>
                         </div>
 
-                        {{-- Save button — lebih jelas, full-width, dengan state disabled --}}
-                        <button type="submit" id="btn-simpan" class="btn-simpan-roi" disabled>
+                        <button type="submit" id="btn-simpan-slot" class="btn-simpan-roi" disabled>
                             <svg width="15" height="15" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M17 16v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2M12 12V3m0 0L8 7m4-4l4 4" />
                             </svg>
-                            <span id="btn-simpan-text">Gambar poligon terlebih dahulu</span>
+                            <span id="btn-simpan-slot-text">Gambar poligon terlebih dahulu</span>
+                        </button>
+                    </form>
+                </div>
+
+                {{-- ── FORM GARIS TRAFFIC (tampil saat mode = line) ── --}}
+                <div class="card roi-card-alt" id="form-card-line" style="display:none;">
+                    <div class="roi-card-header-alt">
+                        <div class="roi-card-icon-alt roi-card-icon-magenta">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M4 12h16M4 12l4-4m-4 4l4 4M20 12l-4-4m4 4l-4 4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="roi-card-title-alt">Tambah Garis Traffic</h2>
+                            <p class="roi-card-sub-alt">Klik 2 titik di canvas: awal & akhir garis</p>
+                        </div>
+                    </div>
+
+                    <form action="{{ route('roi.line.store') }}" method="POST" class="roi-form-alt">
+                        @csrf
+                        <input type="hidden" name="id_kamera" value="{{ $selectedKamera->id_kamera ?? '' }}">
+
+                        <div class="field-group">
+                            <label class="field-label">Nama Garis <span class="field-required">*</span></label>
+                            <input type="text" name="nama_line" class="field-input"
+                                placeholder="Contoh: Counting Line 1" required>
+                            <p class="field-hint">Nama unik untuk identifikasi garis traffic flow.</p>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label">Koordinat Garis (JSON) <span
+                                    class="field-required">*</span></label>
+                            <textarea id="koordinat_line_input" name="koordinat_line" rows="3" class="field-input field-textarea" readonly
+                                required placeholder="Klik 2 titik di canvas untuk mengisi ini..."></textarea>
+                            <p class="field-hint">Tepat 2 titik: [{"x":..,"y":..},{"x":..,"y":..}]</p>
+                        </div>
+
+                        <button type="submit" id="btn-simpan-line" class="btn-simpan-roi btn-simpan-line" disabled>
+                            <svg width="15" height="15" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M17 16v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2M12 12V3m0 0L8 7m4-4l4 4" />
+                            </svg>
+                            <span id="btn-simpan-line-text">Klik 2 titik di canvas</span>
                         </button>
                     </form>
                 </div>
@@ -165,7 +235,6 @@
                         </div>
                     </div>
 
-                    {{-- Scrollable list --}}
                     <div class="roi-list-scroll">
                         @forelse($slots as $slot)
                             <div class="roi-list-item-alt" onmouseenter="highlightSlot('{{ $slot->id_slot }}')"
@@ -215,6 +284,72 @@
                     </div>
                 </div>
 
+                {{-- ── Garis Terdaftar ── --}}
+                <div class="card roi-card-alt">
+                    <div class="roi-card-header-alt">
+                        <div class="roi-card-icon-alt roi-card-icon-magenta">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M4 12h16M4 12l4-4m-4 4l4 4M20 12l-4-4m4 4l-4 4" />
+                            </svg>
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <h2 class="roi-card-title-alt">Garis Terdaftar</h2>
+                            <p class="roi-card-sub-alt">{{ $lines->count() ?? 0 }} garis traffic flow</p>
+                        </div>
+                    </div>
+
+                    <div class="roi-list-scroll">
+                        @forelse(($lines ?? []) as $line)
+                            <div class="roi-list-item-alt" onmouseenter="highlightLine('{{ $line->id_line }}')"
+                                onmouseleave="unhighlightLine()">
+                                <div class="slot-info">
+                                    <div class="slot-badge slot-badge-magenta">
+                                        {{ strtoupper(substr($line->nama_line, 0, 2)) }}</div>
+                                    <div>
+                                        <p class="slot-name-alt">{{ $line->nama_line }}</p>
+                                        <p class="slot-coords-alt">{{ substr($line->koordinat_line, 0, 28) }}…</p>
+                                    </div>
+                                </div>
+                                <div class="roi-list-actions-alt">
+                                    <a href="{{ route('roi.line.edit', $line->id_line) }}"
+                                        class="btn-icon btn-icon-blue" title="Edit">
+                                        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </a>
+                                    <form action="{{ route('roi.line.destroy', $line->id_line) }}" method="POST"
+                                        onsubmit="return confirm('Hapus garis {{ $line->nama_line }}?');"
+                                        style="display:inline;">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn-icon btn-icon-red" title="Hapus">
+                                            <svg width="13" height="13" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="roi-empty-alt">
+                                <svg width="32" height="32" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="1.5"
+                                    style="color:#D9D6D0; margin-bottom:8px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16" />
+                                </svg>
+                                <p>Belum ada garis traffic terdaftar.</p>
+                                <p style="font-size:12px; margin-top:4px;">Pilih Mode Garis lalu klik 2 titik di
+                                    canvas.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
             </div>{{-- /roi-right-alt --}}
         </div>
     </div>
@@ -222,7 +357,7 @@
     @include('layouts.form-styles')
     @include('layouts.table-styles')
 
-    {{-- Pass saved slots ke JS sebagai JSON --}}
+    {{-- Pass saved slots & lines ke JS --}}
     @if ($selectedKamera)
         @php
             $slotsForJs = $slots
@@ -235,13 +370,26 @@
                 })
                 ->values()
                 ->all();
+
+            $linesForJs = collect($lines ?? [])
+                ->map(function ($l) {
+                    return [
+                        'id' => $l->id_line,
+                        'nama' => $l->nama_line,
+                        'coords' => json_decode($l->koordinat_line, true) ?? [],
+                    ];
+                })
+                ->values()
+                ->all();
         @endphp
         <script>
             const SAVED_SLOTS = @json($slotsForJs);
+            const SAVED_LINES = @json($linesForJs);
         </script>
     @else
         <script>
             const SAVED_SLOTS = [];
+            const SAVED_LINES = [];
         </script>
     @endif
 
@@ -256,6 +404,8 @@
             --text-muted: #A09D97;
             --accent: #D97706;
             --accent-hover: #B45309;
+            --magenta: #DB2777;
+            --magenta-hover: #BE185D;
             --radius-md: 10px;
             --radius-lg: 14px;
             --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -329,8 +479,8 @@
             display: flex;
             align-items: flex-start;
             gap: 14px;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
+            margin-bottom: 16px;
+            padding-bottom: 14px;
             border-bottom: 1px solid var(--border-soft);
         }
 
@@ -356,6 +506,11 @@
             color: #2563EB;
         }
 
+        .roi-card-icon-magenta {
+            background: #FCE7F3;
+            color: var(--magenta);
+        }
+
         .roi-card-title-alt {
             font-size: 15px;
             font-weight: 700;
@@ -366,6 +521,52 @@
             font-size: 13px;
             color: var(--text-secondary);
             margin-top: 2px;
+        }
+
+        /* ── Mode Toggle ── */
+        .mode-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .mode-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .mode-btn-active {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+        }
+
+        #btn-mode-slot.mode-btn-active {
+            color: var(--accent);
+        }
+
+        #btn-mode-line.mode-btn-active {
+            color: var(--magenta);
         }
 
         /* Canvas */
@@ -406,7 +607,7 @@
             font-size: 14px;
         }
 
-        /* Actions row */
+        /* Actions */
         .roi-actions-alt {
             display: flex;
             align-items: center;
@@ -455,6 +656,7 @@
             padding: 5px 10px;
             border-radius: 6px;
             margin-left: auto;
+            flex-wrap: wrap;
         }
 
         .legend-dot {
@@ -466,6 +668,10 @@
 
         .legend-dot-saved {
             background: #16A34A;
+        }
+
+        .legend-dot-line {
+            background: var(--magenta);
         }
 
         .legend-dot-active {
@@ -492,7 +698,7 @@
             color: var(--text-secondary);
         }
 
-        /* ── Tombol Simpan ── */
+        /* Tombol Simpan */
         .btn-simpan-roi {
             display: flex;
             align-items: center;
@@ -508,7 +714,6 @@
             transition: all 150ms ease;
         }
 
-        /* disabled: poligon belum digambar */
         .btn-simpan-roi:disabled {
             background: var(--bg-base);
             color: var(--text-muted);
@@ -516,7 +721,6 @@
             cursor: not-allowed;
         }
 
-        /* ready: ada koordinat */
         .btn-simpan-roi.ready {
             background: var(--accent);
             color: white;
@@ -526,16 +730,27 @@
         .btn-simpan-roi.ready:hover {
             background: var(--accent-hover);
             transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(217, 119, 6, .35);
         }
 
         .btn-simpan-roi.ready:active {
             transform: translateY(0);
         }
 
-        /* ── Slot List Scrollable ── */
+        /* Tombol Simpan — variant garis (magenta) */
+        .btn-simpan-line.ready {
+            background: var(--magenta);
+            color: white;
+            box-shadow: 0 2px 8px rgba(219, 39, 119, .3);
+        }
+
+        .btn-simpan-line.ready:hover {
+            background: var(--magenta-hover);
+            transform: translateY(-1px);
+        }
+
+        /* List Scrollable */
         .roi-list-scroll {
-            max-height: 320px;
+            max-height: 280px;
             overflow-y: auto;
             overflow-x: hidden;
             margin: 0 -4px;
@@ -582,7 +797,6 @@
             background: #FEF3C7;
         }
 
-        /* Slot item layout */
         .slot-info {
             display: flex;
             align-items: center;
@@ -602,6 +816,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .slot-badge-magenta {
+            background: #FCE7F3;
+            color: var(--magenta);
         }
 
         .slot-name-alt {
@@ -629,7 +848,7 @@
         }
 
         .roi-empty-alt {
-            padding: 24px 16px;
+            padding: 20px 16px;
             text-align: center;
             color: var(--text-muted);
             font-size: 13px;
@@ -660,15 +879,9 @@
                 padding: 16px 18px;
             }
 
-            .roi-card-header-alt {
-                margin-bottom: 16px;
-                padding-bottom: 12px;
-                gap: 10px;
-            }
-
-            .roi-card-icon-alt {
-                width: 32px;
-                height: 32px;
+            .mode-btn {
+                font-size: 11px;
+                padding: 8px 6px;
             }
 
             .canvas-legend {
@@ -679,24 +892,46 @@
 
     <script>
         (function() {
-            /* ── refs ── */
+            /* ═══════════════════════════════════════
+               REFS
+            ═══════════════════════════════════════ */
             const canvas = document.getElementById('roi-canvas');
             if (!canvas) return;
 
             const ctx = canvas.getContext('2d');
             const img = document.getElementById('camera-frame');
-            const inputKoord = document.getElementById('koordinat_input');
             const counter = document.getElementById('point-counter');
             const countNum = document.getElementById('point-count');
-            const btnSimpan = document.getElementById('btn-simpan');
-            const btnText = document.getElementById('btn-simpan-text');
+            const canvasHint = document.getElementById('canvas-hint');
 
-            let points = [];
-            let closed = false;
-            let hoveredSlot = null; /* id slot yang di-hover dari list */
+            /* Form Slot */
+            const formCardSlot = document.getElementById('form-card-slot');
+            const inputKoordSlot = document.getElementById('koordinat_input');
+            const btnSimpanSlot = document.getElementById('btn-simpan-slot');
+            const btnTextSlot = document.getElementById('btn-simpan-slot-text');
+
+            /* Form Garis */
+            const formCardLine = document.getElementById('form-card-line');
+            const inputKoordLine = document.getElementById('koordinat_line_input');
+            const btnSimpanLine = document.getElementById('btn-simpan-line');
+            const btnTextLine = document.getElementById('btn-simpan-line-text');
+
+            /* Mode buttons */
+            const btnModeSlot = document.getElementById('btn-mode-slot');
+            const btnModeLine = document.getElementById('btn-mode-line');
 
             /* ═══════════════════════════════════════
-               1. SYNC CANVAS SIZE ke render gambar
+               STATE
+            ═══════════════════════════════════════ */
+            let currentMode = 'slot'; // 'slot' | 'line'
+            let pointsSlot = [];
+            let closedSlot = false;
+            let pointsLine = []; // max 2 titik
+            let hoveredSlot = null;
+            let hoveredLine = null;
+
+            /* ═══════════════════════════════════════
+               1. SYNC CANVAS SIZE
             ═══════════════════════════════════════ */
             function syncCanvasSize() {
                 if (!img.naturalWidth) return;
@@ -717,37 +952,77 @@
             ro.observe(img);
 
             /* ═══════════════════════════════════════
-               2. KLIK — koordinat akurat
+               2. MODE SWITCHING
+            ═══════════════════════════════════════ */
+            window.setMode = function(mode) {
+                currentMode = mode;
+
+                btnModeSlot.classList.toggle('mode-btn-active', mode === 'slot');
+                btnModeLine.classList.toggle('mode-btn-active', mode === 'line');
+
+                formCardSlot.style.display = (mode === 'slot') ? '' : 'none';
+                formCardLine.style.display = (mode === 'line') ? '' : 'none';
+
+                canvasHint.textContent = (mode === 'slot') ?
+                    'Mode Slot: klik untuk titik, double-click untuk menutup poligon' :
+                    'Mode Garis: klik 2 titik di canvas (titik awal & akhir)';
+
+                updateCounter();
+                updateSaveButtons();
+                redraw();
+            };
+
+            /* ═══════════════════════════════════════
+               3. KLIK — koordinat akurat, per-mode
             ═══════════════════════════════════════ */
             canvas.addEventListener('click', function(e) {
-                if (closed) return;
                 const rect = canvas.getBoundingClientRect();
                 const scaleX = canvas.width / rect.width;
                 const scaleY = canvas.height / rect.height;
                 const x = Math.round((e.clientX - rect.left) * scaleX);
                 const y = Math.round((e.clientY - rect.top) * scaleY);
                 if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) return;
-                points.push({
-                    x,
-                    y
-                });
-                updateCounter();
+
+                if (currentMode === 'slot') {
+                    if (closedSlot) return;
+                    pointsSlot.push({
+                        x,
+                        y
+                    });
+                } else {
+                    /* Mode garis: maksimal 2 titik. Klik ke-3 reset & mulai ulang. */
+                    if (pointsLine.length >= 2) {
+                        pointsLine = [{
+                            x,
+                            y
+                        }];
+                    } else {
+                        pointsLine.push({
+                            x,
+                            y
+                        });
+                    }
+                }
+
                 updateInput();
+                updateCounter();
+                updateSaveButtons();
                 redraw();
             });
 
-            /* Double-click: tutup poligon */
+            /* Double-click: tutup poligon (hanya berlaku di mode slot) */
             canvas.addEventListener('dblclick', function() {
-                if (points.length >= 3) {
-                    closed = true;
+                if (currentMode !== 'slot') return;
+                if (pointsSlot.length >= 3) {
+                    closedSlot = true;
                     updateInput();
-                    updateSaveButton();
+                    updateSaveButtons();
                     redraw();
                 }
             });
 
             /* ═══════════════════════════════════════
-               3. REDRAW — current + semua saved
+               4. REDRAW — saved slots + saved lines + current drawing
             ═══════════════════════════════════════ */
             function redraw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -756,89 +1031,149 @@
                 const lw = Math.max(2, canvas.width * 0.003);
                 const fs = Math.max(12, canvas.width * 0.014);
 
-                /* ── Render semua ROI tersimpan ── */
-                if (typeof SAVED_SLOTS !== 'undefined') {
-                    SAVED_SLOTS.forEach(function(slot) {
-                        if (!slot.coords || slot.coords.length < 2) return;
+                /* ── Saved SLOTS (hijau) ── */
+                (SAVED_SLOTS || []).forEach(function(slot) {
+                    if (!slot.coords || slot.coords.length < 2) return;
+                    const isHover = (hoveredSlot === String(slot.id));
 
-                        const isHover = (hoveredSlot === String(slot.id));
+                    ctx.beginPath();
+                    ctx.moveTo(slot.coords[0].x, slot.coords[0].y);
+                    for (let i = 1; i < slot.coords.length; i++) ctx.lineTo(slot.coords[i].x, slot.coords[i].y);
+                    ctx.closePath();
 
-                        ctx.beginPath();
-                        ctx.moveTo(slot.coords[0].x, slot.coords[0].y);
-                        for (let i = 1; i < slot.coords.length; i++) {
-                            ctx.lineTo(slot.coords[i].x, slot.coords[i].y);
-                        }
-                        ctx.closePath();
+                    ctx.fillStyle = isHover ? 'rgba(22,163,74,.35)' : 'rgba(22,163,74,.18)';
+                    ctx.fill();
+                    ctx.lineWidth = isHover ? lw * 1.8 : lw;
+                    ctx.strokeStyle = isHover ? '#16A34A' : '#22C55E';
+                    ctx.setLineDash([]);
+                    ctx.stroke();
 
-                        /* fill */
-                        ctx.fillStyle = isHover ?
-                            'rgba(22, 163, 74, 0.35)' :
-                            'rgba(22, 163, 74, 0.18)';
-                        ctx.fill();
+                    const cx = slot.coords.reduce((s, p) => s + p.x, 0) / slot.coords.length;
+                    const cy = slot.coords.reduce((s, p) => s + p.y, 0) / slot.coords.length;
+                    drawLabelPill(cx, cy, slot.nama, isHover ? '#15803D' : '#16A34A', fs);
+                });
 
-                        /* stroke */
-                        ctx.lineWidth = isHover ? lw * 1.8 : lw;
-                        ctx.strokeStyle = isHover ? '#16A34A' : '#22C55E';
-                        ctx.setLineDash([]);
-                        ctx.stroke();
+                /* ── Saved LINES (magenta) ── */
+                (SAVED_LINES || []).forEach(function(line) {
+                    if (!line.coords || line.coords.length < 2) return;
+                    const isHover = (hoveredLine === String(line.id));
+                    const pts = line.coords;
 
-                        /* Label nama slot — background pill */
-                        const cx = slot.coords.reduce((s, p) => s + p.x, 0) / slot.coords.length;
-                        const cy = slot.coords.reduce((s, p) => s + p.y, 0) / slot.coords.length;
+                    drawArrowLine(pts[0], pts[1], isHover ? '#9D174D' : '#DB2777', isHover ? lw * 2.2 : lw *
+                        1.6, dotR);
 
-                        ctx.font = `bold ${fs}px sans-serif`;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
+                    const mx = (pts[0].x + pts[1].x) / 2;
+                    const my = (pts[0].y + pts[1].y) / 2;
+                    drawLabelPill(mx, my - fs * 1.6, line.nama, isHover ? '#9D174D' : '#DB2777', fs);
+                });
 
-                        const tw = ctx.measureText(slot.nama).width;
-                        const ph = fs * 0.45,
-                            pw = fs * 0.6;
+                /* ── Sedang digambar: SLOT ── */
+                if (currentMode === 'slot' && pointsSlot.length > 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(pointsSlot[0].x, pointsSlot[0].y);
+                    for (let i = 1; i < pointsSlot.length; i++) ctx.lineTo(pointsSlot[i].x, pointsSlot[i].y);
+                    if (closedSlot) ctx.closePath();
 
-                        /* pill background */
-                        ctx.fillStyle = isHover ? '#15803D' : '#16A34A';
-                        roundRect(ctx, cx - tw / 2 - pw, cy - fs / 2 - ph, tw + pw * 2, fs + ph * 2, fs * 0.4);
-                        ctx.fill();
+                    ctx.fillStyle = closedSlot ? 'rgba(37,99,235,.25)' : 'rgba(37,99,235,.10)';
+                    ctx.fill();
+                    ctx.lineWidth = lw;
+                    ctx.strokeStyle = closedSlot ? '#2563EB' : '#60A5FA';
+                    ctx.setLineDash(closedSlot ? [] : [8, 4]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
 
-                        /* teks */
-                        ctx.fillStyle = '#fff';
-                        ctx.fillText(slot.nama, cx, cy);
+                    pointsSlot.forEach(function(p, i) {
+                        drawPointDot(p, i === 0 ? '#16A34A' : '#DC2626', dotR, lw);
+                        drawPointNumber(p, i + 1, fs);
                     });
                 }
 
-                /* ── Render poligon yang sedang digambar ── */
-                if (points.length === 0) return;
+                /* ── Sedang digambar: GARIS ── */
+                if (currentMode === 'line' && pointsLine.length > 0) {
+                    if (pointsLine.length === 2) {
+                        drawArrowLine(pointsLine[0], pointsLine[1], '#DB2777', lw * 1.8, dotR, true);
+                    } else {
+                        /* hanya 1 titik: tampilkan titik saja */
+                        drawPointDot(pointsLine[0], '#DB2777', dotR, lw);
+                    }
+                }
+            }
 
+            /* ── Helper: titik bulat ── */
+            function drawPointDot(p, color, dotR, lw) {
                 ctx.beginPath();
-                ctx.moveTo(points[0].x, points[0].y);
-                for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
-                if (closed) ctx.closePath();
-
-                ctx.fillStyle = closed ? 'rgba(37, 99, 235, 0.25)' : 'rgba(37, 99, 235, 0.10)';
+                ctx.arc(p.x, p.y, dotR, 0, 2 * Math.PI);
+                ctx.fillStyle = color;
                 ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = Math.max(1.5, lw * 0.8);
+                ctx.stroke();
+            }
+
+            /* ── Helper: angka di titik ── */
+            function drawPointNumber(p, num, fs) {
+                ctx.font = `bold ${fs}px sans-serif`;
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(num, p.x, p.y);
+            }
+
+            /* ── Helper: garis dengan anak panah di ujung (untuk traffic flow) ── */
+            function drawArrowLine(p1, p2, color, lw, dotR, isDashed) {
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
                 ctx.lineWidth = lw;
-                ctx.strokeStyle = closed ? '#2563EB' : '#60A5FA';
-                ctx.setLineDash(closed ? [] : [8, 4]);
+                ctx.strokeStyle = color;
+                if (isDashed) ctx.setLineDash([10, 5]);
+                else ctx.setLineDash([]);
                 ctx.stroke();
                 ctx.setLineDash([]);
 
-                points.forEach(function(p, i) {
+                /* Titik di kedua ujung */
+                [p1, p2].forEach(function(p, i) {
                     ctx.beginPath();
-                    ctx.arc(p.x, p.y, dotR, 0, 2 * Math.PI);
-                    ctx.fillStyle = i === 0 ? '#16A34A' : '#DC2626';
+                    ctx.arc(p.x, p.y, dotR * 1.1, 0, 2 * Math.PI);
+                    ctx.fillStyle = i === 0 ? '#16A34A' : color; /* titik awal hijau, akhir warna garis */
                     ctx.fill();
                     ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = Math.max(1.5, lw * 0.8);
+                    ctx.lineWidth = 2;
                     ctx.stroke();
-
-                    ctx.font = `bold ${fs}px sans-serif`;
-                    ctx.fillStyle = '#fff';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(i + 1, p.x, p.y);
                 });
+
+                /* Anak panah di ujung akhir, menunjukkan arah flow */
+                const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+                const headLen = Math.max(10, lw * 4);
+                ctx.beginPath();
+                ctx.moveTo(p2.x, p2.y);
+                ctx.lineTo(p2.x - headLen * Math.cos(angle - Math.PI / 7), p2.y - headLen * Math.sin(angle - Math.PI /
+                    7));
+                ctx.lineTo(p2.x - headLen * Math.cos(angle + Math.PI / 7), p2.y - headLen * Math.sin(angle + Math.PI /
+                    7));
+                ctx.closePath();
+                ctx.fillStyle = color;
+                ctx.fill();
             }
 
-            /* helper: rounded rect path */
+            /* ── Helper: label pill (nama slot/garis) ── */
+            function drawLabelPill(cx, cy, text, bgColor, fs) {
+                ctx.font = `bold ${fs}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const tw = ctx.measureText(text).width;
+                const ph = fs * 0.45,
+                    pw = fs * 0.6;
+
+                ctx.fillStyle = bgColor;
+                roundRect(ctx, cx - tw / 2 - pw, cy - fs / 2 - ph, tw + pw * 2, fs + ph * 2, fs * 0.4);
+                ctx.fill();
+
+                ctx.fillStyle = '#fff';
+                ctx.fillText(text, cx, cy);
+            }
+
             function roundRect(ctx, x, y, w, h, r) {
                 ctx.beginPath();
                 ctx.moveTo(x + r, y);
@@ -854,81 +1189,92 @@
             }
 
             /* ═══════════════════════════════════════
-               4. STATE HELPERS
+               5. STATE HELPERS
             ═══════════════════════════════════════ */
             function updateInput() {
-                if (points.length > 0) inputKoord.value = JSON.stringify(points);
+                if (currentMode === 'slot') {
+                    inputKoordSlot.value = pointsSlot.length > 0 ? JSON.stringify(pointsSlot) : '';
+                } else {
+                    inputKoordLine.value = pointsLine.length === 2 ? JSON.stringify(pointsLine) : '';
+                }
             }
 
             function updateCounter() {
                 if (!counter) return;
-                counter.style.display = points.length > 0 ? 'inline-flex' : 'none';
-                if (countNum) countNum.textContent = points.length;
+                const len = currentMode === 'slot' ? pointsSlot.length : pointsLine.length;
+                counter.style.display = len > 0 ? 'inline-flex' : 'none';
+                if (countNum) countNum.textContent = len;
             }
 
-            function updateSaveButton() {
-                if (!btnSimpan) return;
-                const hasCoords = points.length >= 3 && closed;
-                if (hasCoords) {
-                    btnSimpan.disabled = false;
-                    btnSimpan.classList.add('ready');
-                    if (btnText) btnText.textContent = 'Simpan Slot';
+            function updateSaveButtons() {
+                /* Tombol Slot */
+                const hasCoordsSlot = pointsSlot.length >= 3 && closedSlot;
+                btnSimpanSlot.disabled = !hasCoordsSlot;
+                btnSimpanSlot.classList.toggle('ready', hasCoordsSlot);
+                btnTextSlot.textContent = hasCoordsSlot ? 'Simpan Slot' : 'Gambar poligon terlebih dahulu';
+
+                /* Tombol Garis */
+                const hasCoordsLine = pointsLine.length === 2;
+                btnSimpanLine.disabled = !hasCoordsLine;
+                btnSimpanLine.classList.toggle('ready', hasCoordsLine);
+                btnTextLine.textContent = hasCoordsLine ? 'Simpan Garis Traffic' : 'Klik 2 titik di canvas';
+            }
+
+            /* Reset — hanya membersihkan mode yang sedang aktif */
+            window.clearCanvas = function() {
+                if (currentMode === 'slot') {
+                    pointsSlot = [];
+                    closedSlot = false;
                 } else {
-                    btnSimpan.disabled = true;
-                    btnSimpan.classList.remove('ready');
-                    if (btnText) btnText.textContent = 'Gambar poligon terlebih dahulu';
+                    pointsLine = [];
                 }
-            }
-
-            /* Aktifkan tombol juga saat koordinat textarea terisi (mis. dari double-click) */
-            if (inputKoord) {
-                const obs = new MutationObserver(updateSaveButton);
-                obs.observe(inputKoord, {
-                    attributes: true,
-                    childList: true,
-                    subtree: true
-                });
-                inputKoord.addEventListener('input', updateSaveButton);
-            }
-
-            function clearCanvas() {
-                points = [];
-                closed = false;
-                if (inputKoord) inputKoord.value = '';
+                updateInput();
                 updateCounter();
-                updateSaveButton();
+                updateSaveButtons();
                 redraw();
-            }
-
-            window.clearCanvas = clearCanvas;
+            };
 
             /* ═══════════════════════════════════════
-               5. HOVER HIGHLIGHT dari list slot
+               6. HOVER HIGHLIGHT — slot & line
             ═══════════════════════════════════════ */
             window.highlightSlot = function(id) {
                 hoveredSlot = String(id);
                 redraw();
-                /* Tambah class ke item list */
-                document.querySelectorAll('.roi-list-item-alt').forEach(function(el) {
-                    el.classList.toggle('highlighted', el.dataset.slotId === String(id));
+                document.querySelectorAll('.roi-list-item-alt[onmouseenter*="highlightSlot"]').forEach(function(
+                    el) {
+                    const m = el.getAttribute('onmouseenter').match(/'([^']+)'/);
+                    el.classList.toggle('highlighted', m && m[1] === String(id));
                 });
             };
             window.unhighlightSlot = function() {
                 hoveredSlot = null;
                 redraw();
-                document.querySelectorAll('.roi-list-item-alt').forEach(function(el) {
+                document.querySelectorAll('.roi-list-item-alt[onmouseenter*="highlightSlot"]').forEach(function(
+                    el) {
                     el.classList.remove('highlighted');
                 });
             };
 
-            /* Set data-slot-id pada setiap list item agar class toggle bisa match */
-            document.querySelectorAll('.roi-list-item-alt').forEach(function(el) {
-                const onenter = el.getAttribute('onmouseenter');
-                if (onenter) {
-                    const m = onenter.match(/'([^']+)'/);
-                    if (m) el.dataset.slotId = m[1];
-                }
-            });
+            window.highlightLine = function(id) {
+                hoveredLine = String(id);
+                redraw();
+                document.querySelectorAll('.roi-list-item-alt[onmouseenter*="highlightLine"]').forEach(function(
+                    el) {
+                    const m = el.getAttribute('onmouseenter').match(/'([^']+)'/);
+                    el.classList.toggle('highlighted', m && m[1] === String(id));
+                });
+            };
+            window.unhighlightLine = function() {
+                hoveredLine = null;
+                redraw();
+                document.querySelectorAll('.roi-list-item-alt[onmouseenter*="highlightLine"]').forEach(function(
+                    el) {
+                    el.classList.remove('highlighted');
+                });
+            };
+
+            /* Init awal */
+            updateSaveButtons();
 
         })();
 

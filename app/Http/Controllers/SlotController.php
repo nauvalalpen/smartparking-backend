@@ -65,7 +65,7 @@ class SlotController extends Controller
         return response()->json(['message' => 'Status tidak berubah, diabaikan.'], 200);
     }
    
-// Menampilkan Halaman Konfigurasi RoI dengan Dropdown
+    // Menampilkan Halaman Konfigurasi RoI dengan Dropdown
     public function indexRoi(Request $request)
     {
         // Ambil semua kamera yang aktif untuk dropdown
@@ -78,7 +78,13 @@ class SlotController extends Controller
         // Ambil slot hanya untuk kamera yang dipilih
         $slots = $selectedKameraId ? \App\Models\Slot::where('id_kamera', $selectedKameraId)->get() : collect();
 
-        return view('roi.index', compact('kameras', 'selectedKamera', 'slots'));
+        // Decode lines dari selected kamera
+        $linesJson = $selectedKamera ? $selectedKamera->koordinat_garis : '';
+        $lines = collect(json_decode($linesJson ?? '', true) ?? [])->map(function ($l) {
+            return (object) $l;
+        });
+
+        return view('roi.index', compact('kameras', 'selectedKamera', 'slots', 'lines'));
     }
 
     // Menyimpan koordinat JSON
@@ -148,6 +154,113 @@ class SlotController extends Controller
 
         return redirect()->route('roi.index', ['kamera_id' => $id_kamera])
                          ->with('success', 'Slot Parkir berhasil dihapus!');
+    }
+
+    // Menyimpan koordinat Garis Traffic Flow ke Kamera
+    public function storeLine(Request $request)
+    {
+        $request->validate([
+            'id_kamera' => 'required|integer',
+            'nama_line' => 'required|string|max:50',
+            'koordinat_line' => 'required|json'
+        ]);
+
+        $kamera = \App\Models\KameraCctv::findOrFail($request->id_kamera);
+        $lines = json_decode($kamera->koordinat_garis, true) ?? [];
+        
+        $newLine = [
+            'id_line' => 'line_' . uniqid(),
+            'nama_line' => $request->nama_line,
+            'koordinat_line' => $request->koordinat_line
+        ];
+        
+        $lines[] = $newLine;
+        
+        $kamera->koordinat_garis = json_encode($lines);
+        $kamera->save();
+
+        return redirect()->route('roi.index', ['kamera_id' => $request->id_kamera])
+                         ->with('success', 'Garis Traffic Flow berhasil disimpan!');
+    }
+
+    // Menampilkan halaman edit Garis
+    public function editLine($id)
+    {
+        $kamera = \App\Models\KameraCctv::where('koordinat_garis', 'like', '%' . $id . '%')->firstOrFail();
+        $lines = json_decode($kamera->koordinat_garis, true) ?? [];
+        
+        $line = null;
+        foreach ($lines as $l) {
+            if ($l['id_line'] === $id) {
+                $line = $l;
+                break;
+            }
+        }
+        
+        if (!$line) {
+            abort(404);
+        }
+
+        return view('roi.edit-line', compact('line', 'kamera'));
+    }
+
+    // Menyimpan perubahan Garis
+    public function updateLine(Request $request, $id)
+    {
+        $request->validate([
+            'nama_line' => 'required|string|max:50',
+            'koordinat_line' => 'required|json'
+        ]);
+
+        $kamera = \App\Models\KameraCctv::where('koordinat_garis', 'like', '%' . $id . '%')->firstOrFail();
+        $lines = json_decode($kamera->koordinat_garis, true) ?? [];
+        
+        $found = false;
+        foreach ($lines as &$l) {
+            if ($l['id_line'] === $id) {
+                $l['nama_line'] = $request->nama_line;
+                $l['koordinat_line'] = $request->koordinat_line;
+                $found = true;
+                break;
+            }
+        }
+        
+        if (!$found) {
+            abort(404);
+        }
+
+        $kamera->koordinat_garis = json_encode($lines);
+        $kamera->save();
+
+        return redirect()->route('roi.index', ['kamera_id' => $kamera->id_kamera])
+                         ->with('success', 'Garis Traffic Flow berhasil diperbarui!');
+    }
+
+    // Menghapus Garis
+    public function destroyLine($id)
+    {
+        $kamera = \App\Models\KameraCctv::where('koordinat_garis', 'like', '%' . $id . '%')->firstOrFail();
+        $lines = json_decode($kamera->koordinat_garis, true) ?? [];
+        
+        $filteredLines = [];
+        $found = false;
+        foreach ($lines as $l) {
+            if ($l['id_line'] === $id) {
+                $found = true;
+                continue;
+            }
+            $filteredLines[] = $l;
+        }
+        
+        if (!$found) {
+            abort(404);
+        }
+
+        $kamera->koordinat_garis = count($filteredLines) > 0 ? json_encode($filteredLines) : null;
+        $kamera->save();
+
+        return redirect()->route('roi.index', ['kamera_id' => $kamera->id_kamera])
+                         ->with('success', 'Garis Traffic Flow berhasil dihapus!');
     }
 }
 
