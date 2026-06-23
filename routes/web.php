@@ -46,6 +46,8 @@ Route::delete('/konfigurasi-roi/line/{id}', [SlotController::class, 'destroyLine
 Route::get('/kamera/{id_kamera}/roi', [SlotController::class, 'createRoi'])->name('kamera.roi');
 Route::post('/kamera/{id_kamera}/roi',[SlotController::class, 'storeRoi'])->name('kamera.roi.store');
 Route::post('/kamera/{id_kamera}/garis', [App\Http\Controllers\KameraController::class, 'storeGaris'])->name('kamera.garis.store');
+// Route untuk Menyalakan AI Python dari Web
+Route::post('/kamera/{id_kamera}/start-ai', [App\Http\Controllers\KameraController::class, 'startAi'])->name('kamera.start_ai');
 
 
 // Route Laporan dan Export

@@ -77,6 +77,16 @@ class KameraController extends Controller
         return redirect()->back()->with('success', 'Garis Traffic Flow berhasil disimpan!');
     }
 
+    public function startAi($id_kamera)
+    {
+        $kamera = \App\Models\KameraCctv::findOrFail($id_kamera);
+
+        // NANTI DI LANGKAH 3: KITA AKAN MENARUH KODE UNTUK MEMBUKA TERMINAL PYTHON DI SINI.
+        // Untuk sekarang, kita kembalikan pesan sukses dulu untuk memastikan tombolnya bekerja.
+
+        return redirect()->back()->with('success', 'Sistem AI untuk Kamera ' . $kamera->nama_kamera . ' sedang dipersiapkan untuk berjalan...');
+    }
+
     // 4. Menghapus Data (Proses Delete)
     public function destroy($id)
     {
