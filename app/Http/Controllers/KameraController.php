@@ -77,14 +77,31 @@ class KameraController extends Controller
         return redirect()->back()->with('success', 'Garis Traffic Flow berhasil disimpan!');
     }
 
+// Fungsi untuk menyalakan skrip Python AI
     public function startAi($id_kamera)
     {
         $kamera = \App\Models\KameraCctv::findOrFail($id_kamera);
 
-        // NANTI DI LANGKAH 3: KITA AKAN MENARUH KODE UNTUK MEMBUKA TERMINAL PYTHON DI SINI.
-        // Untuk sekarang, kita kembalikan pesan sukses dulu untuk memastikan tombolnya bekerja.
+        // =========================================================
+        // ⚠️ PENTING: GANTI PATH INI SESUAI LOKASI FOLDER AI ANDA!
+        // Gunakan garis miring terbalik ganda (\\) untuk Windows.
+        // Berdasarkan log error Anda sebelumnya, path-nya adalah:
+        // =========================================================
+        $ai_folder = "D:\\Kuliah SMT6 - TRPL 3D\\Capstone Project\\Aplikasi\\smartparking_ai";
 
-        return redirect()->back()->with('success', 'Sistem AI untuk Kamera ' . $kamera->nama_kamera . ' sedang dipersiapkan untuk berjalan...');
+        // Menyusun Command (Perintah) untuk Windows CMD
+        // 1. Membuka CMD baru dengan judul window "SmartParking AI"
+        // 2. Berpindah (cd) ke folder AI
+        // 3. Menggunakan python.exe dari dalam folder venv
+        // 4. Menjalankan main.py dengan argumen ID Kamera
+        
+        $command = 'start "SmartParking AI - Kamera ' . $id_kamera . '" cmd /k "cd /d "' . $ai_folder . '" && venv\Scripts\python.exe main.py ' . $id_kamera . '"';
+
+        // Mengeksekusi perintah di background tanpa membuat Laravel loading/menunggu lama
+        pclose(popen($command, "r"));
+
+        // Mengembalikan pesan sukses ke Web
+        return redirect()->back()->with('success', 'Sistem AI untuk Kamera ' . $kamera->nama_kamera . ' berhasil dijalankan! Silakan cek jendela Terminal baru yang terbuka.');
     }
 
     // 4. Menghapus Data (Proses Delete)
