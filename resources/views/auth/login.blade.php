@@ -311,8 +311,8 @@
     <div class="login-wrapper">
         {{-- Branding --}}
         <div class="login-branding">
-            <div class="brand-mark">SP</div>
-            <div class="brand-name">{{ config('app.name', 'Smart Parking') }}</div>
+            <div class="brand-mark">PNP</div>
+            <div class="brand-name">SmartParking and Traffic Flow</div>
             <div class="brand-tagline">Manajemen Parkir Cerdas</div>
         </div>
 

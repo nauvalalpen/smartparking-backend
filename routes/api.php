@@ -26,6 +26,8 @@ Route::post('/v1/auth/login', function (Request $request) {
             'nama_lengkap' => $user->nama_lengkap,
             'email' => $user->email,
             'role' => $user->role,
+            'area_penugasan' => $user->area_penugasan ?? 'Belum Ditugaskan',
+            'shift_kerja' => $user->shift_kerja ?? 'Belum Ada Shift',
         ]
     ]);
 });
