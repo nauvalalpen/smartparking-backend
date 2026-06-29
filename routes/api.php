@@ -4,8 +4,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SlotController;
 use App\Http\Controllers\TrafficFlowController;
+use App\Http\Controllers\KameraController; 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+
 
 
 
@@ -32,7 +34,6 @@ Route::post('/v1/auth/login', function (Request $request) {
     ]);
 });
 
-
 // Route untuk Aplikasi Mobile / Pengunjung (Read Only)
 Route::get('/public/slots', [SlotController::class, 'getPublicSlots']);
 
@@ -42,3 +43,8 @@ Route::post('/ai/traffic-count', [TrafficFlowController::class, 'incrementTraffi
 
 // Route untuk Dashboard Admin (Read Data)
 Route::get('/traffic/stats', [TrafficFlowController::class, 'getStats']);
+
+Route::post('/ai/traffic-count', [TrafficFlowController::class, 'incrementTraffic']);
+
+// TAMBAHKAN BARIS INI: Route untuk Upload Snapshot dari Google Colab
+Route::post('/ai/upload-snapshot', [KameraController::class, 'uploadSnapshot']);

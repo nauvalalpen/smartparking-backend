@@ -104,6 +104,36 @@ class KameraController extends Controller
         return redirect()->back()->with('success', 'Sistem AI untuk Kamera ' . $kamera->nama_kamera . ' berhasil dijalankan! Silakan cek jendela Terminal baru yang terbuka.');
     }
 
+    // API POST: Menerima kiriman gambar snapshot dari AI (Google Colab)
+    public function uploadSnapshot(Request $request)
+    {
+        // Validasi: Wajib ada ID Kamera dan File Gambar (Maksimal 2MB)
+        $request->validate([
+            'id_kamera' => 'required|integer',
+            'image' => 'required|image|mimes:jpeg,jpg,png|max:2048'
+        ]);
+
+        try {
+            $kameraId = $request->id_kamera;
+            // Nama file harus selalu menimpa file yang lama (Overwrite)
+            $imageName = 'kamera_' . $kameraId . '.jpg';
+
+            // Memindahkan gambar yang dikirim dari internet ke folder public/snapshots/
+            $request->file('image')->move(public_path('snapshots'), $imageName);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Snapshot Kamera ' . $kameraId . ' berhasil diperbarui dari Cloud!'
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal mengupload snapshot: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     // 4. Menghapus Data (Proses Delete)
     public function destroy($id)
     {
